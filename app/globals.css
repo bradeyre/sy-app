@@ -1,0 +1,173 @@
+@import "tailwindcss";
+
+:root {
+--background: #ffffff;
+--foreground: #171717;
+/* Pin native form controls (inputs, selects, textareas) to light rendering
+regardless of the visitor's OS/browser dark-mode setting. Without this,
+browsers apply dark-mode UA styling to form controls even on a page
+with an explicit white background, making typed text render white on
+white, invisible until selected. */
+color-scheme: light;
+}
+
+@theme inline {
+--color-background: var(--background);
+--color-foreground: var(--foreground);
+}
+
+body {
+background: var(--background);
+color: var(--foreground);
+font-family:
+-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* Offer-reveal animation, the one moment the calculator shows a price, so
+it earns being a little theatrical. */
+@keyframes reveal-confetti-fall {
+0% {
+transform: translateY(-16px) rotate(0deg);
+opacity: 0;
+}
+12% {
+opacity: 1;
+}
+100% {
+transform: translateY(240px) rotate(340deg);
+opacity: 0;
+}
+}
+
+@keyframes reveal-pop {
+0% {
+transform: scale(0.85);
+opacity: 0;
+}
+60% {
+transform: scale(1.06);
+opacity: 1;
+}
+100% {
+transform: scale(1);
+opacity: 1;
+}
+}
+
+@keyframes reveal-pulse-ring {
+0% {
+transform: scale(0.92);
+opacity: 0.45;
+}
+100% {
+transform: scale(1.7);
+opacity: 0;
+}
+}
+
+.reveal-confetti-piece {
+animation-name: reveal-confetti-fall;
+animation-timing-function: ease-in;
+animation-fill-mode: forwards;
+}
+
+.reveal-amount {
+animation: reveal-pop 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.reveal-pulse-ring {
+animation: reveal-pulse-ring 1.8s ease-out infinite;
+}
+
+/* Step transition, a soft fade + rise whenever the active step changes,
+keeps the flow feeling alive without being distracting. */
+@keyframes step-in {
+0% {
+opacity: 0;
+transform: translateY(6px);
+}
+100% {
+opacity: 1;
+transform: translateY(0);
+}
+}
+.step-enter {
+animation: step-in 0.28s ease-out both;
+}
+
+/* Checkbox tick pop, a little satisfying "click" feeling on selection. */
+@keyframes check-pop {
+0% {
+transform: scale(0);
+}
+60% {
+transform: scale(1.15);
+}
+100% {
+transform: scale(1);
+}
+}
+.check-pop {
+animation: check-pop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Shimmering loading skeleton, brand-tinted instead of plain grey. */
+@keyframes skeleton-shimmer {
+0% {
+background-position: -200% 0;
+}
+100% {
+background-position: 200% 0;
+}
+}
+.skeleton-shimmer {
+background: linear-gradient(90deg, #f4f4f5 25%, #e6f5ff 37%, #f4f4f5 63%);
+background-size: 400% 100%;
+animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+/* Cart line entrance, each new item slides in rather than popping in cold. */
+@keyframes item-in {
+0% {
+opacity: 0;
+transform: translateX(-6px);
+}
+100% {
+opacity: 1;
+transform: translateX(0);
+}
+}
+.item-in {
+animation: item-in 0.3s ease-out both;
+}
+
+/* Easter egg tooltip, a small pop for the curious few who find it. */
+@keyframes egg-pop {
+0% {
+opacity: 0;
+transform: scale(0.9) translateY(2px);
+}
+100% {
+opacity: 1;
+transform: scale(1) translateY(0);
+}
+}
+.egg-pop {
+animation: egg-pop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* Calculating-step message swap, each message eases in over the last so
+the sequence feels alive rather than just text flicking. */
+@keyframes msg-in {
+0% {
+opacity: 0;
+transform: translateY(4px);
+}
+100% {
+opacity: 1;
+transform: translateY(0);
+}
+}
+.msg-in {
+animation: msg-in 0.3s ease-out both;
+}

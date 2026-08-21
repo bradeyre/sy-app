@@ -1,0 +1,3 @@
+import{headers}from"next/headers";import{getSiteConfig}from"@/lib/siteConfig";import"./globals.css";export const dynamic="force-dynamic";export async function generateMetadata(){try{const h=await headers();return{title:`Get an instant offer | ${(await getSiteConfig({host:h.get("host")})).siteName}`,description:"Get an instant offer for your device, no waiting, no haggling."}}catch{return{title:"Get an instant offer | Sell Your Mac",description:"Get an instant offer for your Apple device, no waiting, no haggling."}}}export default function RootLayout({children}){return<html lang="en"className="h-full antialiased">
+<body className="min-h-full flex flex-col bg-[#f6f8fa]">{children}</body>
+</html>}
