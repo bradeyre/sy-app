@@ -62,7 +62,7 @@
     </div>}function Nt(){const[e,n]=m(0),[a,l]=m(!1),f=le(null);function p(){n(i=>i+1),f.current&&clearTimeout(f.current),f.current=setTimeout(()=>n(0),1500)}return _(()=>{if(e<5)return;l(!0),n(0);const i=setTimeout(()=>l(!1),2800);return()=>clearTimeout(i)},[e]),<div className="relative mb-6">
       <button type="button"onClick={p}aria-label="Epic Deals"className="mb-3 h-1 w-12 origin-left rounded-full bg-[#00a2ff] transition-transform hover:scale-x-125"/>
       {a&&<p className="egg-pop absolute left-16 top-0 max-w-[220px] text-xs font-medium text-[#00a2ff]">
-          ð You found the secret. There&apos;s no bonus, but we like your curiosity.
+          🎉 You found the secret. There&apos;s no bonus, but we like your curiosity.
         </p>}
       <h1 className="text-2xl font-bold text-zinc-900">Get an instant offer</h1>
       <p className="mt-1 text-sm text-zinc-500">
@@ -142,7 +142,7 @@
     </div>}function At({category:e,models:n,loading:a,search:l,onSearch:f,onChoose:p,onBack:i}){const u=n?.filter(r=>r.label.toLowerCase().includes(l.trim().toLowerCase()));return<div className="space-y-2">
       <I onClick={i}label="Back"/>
       <p className="mb-2 text-sm font-medium text-zinc-600">Which {e.label} do you have?</p>
-      {!a&&n&&n.length>8&&<input type="text"autoFocus value={l}onChange={r=>f(r.target.value)}placeholder={`Search ${n.length} ${e.label} modelsâ¦`}className="mb-2 w-full rounded-xl border border-zinc-200 bg-white px-4 py-3 text-sm text-zinc-900 focus:border-[#00a2ff] focus:outline-none focus:ring-1 focus:ring-[#00a2ff]"/>}
+      {!a&&n&&n.length>8&&<input type="text"autoFocus value={l}onChange={r=>f(r.target.value)}placeholder={`Search ${n.length} ${e.label} models…`}className="mb-2 w-full rounded-xl border border-zinc-200 bg-white px-4 py-3 text-sm text-zinc-900 focus:border-[#00a2ff] focus:outline-none focus:ring-1 focus:ring-[#00a2ff]"/>}
       {a&&<Ce rows={5}/>}
       {!a&&u?.map(r=><Ne key={r.model}onClick={()=>p(r)}>
             {r.label}
@@ -211,7 +211,7 @@
         <div className="rounded-xl border border-zinc-200 bg-white px-4 py-3.5 shadow-sm">
           <label className="mb-1 block text-sm font-medium text-zinc-900">Battery health %</label>
           <p className="mb-2 text-xs text-zinc-500">
-            Check Settings â Battery â Battery Health on the device. Leave blank if you&apos;re not sure.
+            Check Settings → Battery → Battery Health on the device. Leave blank if you&apos;re not sure.
           </p>
           <input type="number"inputMode="numeric"min="0"max="100"value={l}onChange={v=>f(v.target.value)}placeholder="e.g. 87"className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 focus:border-[#00a2ff] focus:outline-none focus:ring-1 focus:ring-[#00a2ff]"/>
         </div>
@@ -239,7 +239,7 @@
 
       {p&&<div className="rounded-xl border border-zinc-200 bg-white px-4 py-3.5 shadow-sm">
           <label className="mb-1 block text-sm font-medium text-zinc-900">Describe what&apos;s wrong (optional)</label>
-          <textarea value={i}onChange={v=>u(v.target.value)}rows={3}maxLength={500}placeholder="e.g. won&apos;t power on, three dead keys, hinge is looseâ¦"className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 focus:border-[#00a2ff] focus:outline-none focus:ring-1 focus:ring-[#00a2ff]"/>
+          <textarea value={i}onChange={v=>u(v.target.value)}rows={3}maxLength={500}placeholder="e.g. won&apos;t power on, three dead keys, hinge is loose…"className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 focus:border-[#00a2ff] focus:outline-none focus:ring-1 focus:ring-[#00a2ff]"/>
           <p className="mt-1 text-xs text-zinc-500">
             The more detail you give us, the better we can price it, our system reviews this to propose a fair
             deduction.
@@ -274,7 +274,7 @@
       <button type="button"onClick={l}className="mt-4 w-full rounded-xl bg-[#00a2ff] px-4 py-3.5 font-semibold text-white shadow-sm transition hover:brightness-95 hover:shadow-[0_0_20px_rgba(0,162,255,0.35)]">
         Calculate Offer
       </button>
-    </div>}const $=[{text:"Crunching the numbersâ¦",duration:1500},{text:"Checking today's going rateâ¦",duration:1600},{text:"Comparing against today's market (no lowballing here)â¦",duration:1900},{text:"Making sure you're not leaving money on the tableâ¦",duration:1900},{text:"Politely arguing with our pricing botâ¦",duration:1700},{text:"Weighing up your accessories (yes, the cable counts)â¦",duration:1900},{text:"Double-checking everything adds upâ¦",duration:1700},{text:"Almost thereâ¦",duration:1300},{text:"Locking in your best offerâ¦",duration:1500}];function Lt({onDone:e}){const[n,a]=m(0);return _(()=>{const l=[];let f=0;for(let i=1;i<$.length;i++)f+=$[i-1].duration,l.push(setTimeout(()=>a(i),f));f+=$[$.length-1].duration;const p=setTimeout(e,f);return()=>{l.forEach(clearTimeout),clearTimeout(p)}},[e]),<div className="flex flex-col items-center justify-center gap-5 rounded-2xl border border-[#00a2ff]/30 bg-gradient-to-b from-[#00a2ff]/10 to-white px-4 py-20 text-center">
+    </div>}const $=[{text:"Crunching the numbers…",duration:1500},{text:"Checking today's going rate…",duration:1600},{text:"Comparing against today's market (no lowballing here)…",duration:1900},{text:"Making sure you're not leaving money on the table…",duration:1900},{text:"Politely arguing with our pricing bot…",duration:1700},{text:"Weighing up your accessories (yes, the cable counts)…",duration:1900},{text:"Double-checking everything adds up…",duration:1700},{text:"Almost there…",duration:1300},{text:"Locking in your best offer…",duration:1500}];function Lt({onDone:e}){const[n,a]=m(0);return _(()=>{const l=[];let f=0;for(let i=1;i<$.length;i++)f+=$[i-1].duration,l.push(setTimeout(()=>a(i),f));f+=$[$.length-1].duration;const p=setTimeout(e,f);return()=>{l.forEach(clearTimeout),clearTimeout(p)}},[e]),<div className="flex flex-col items-center justify-center gap-5 rounded-2xl border border-[#00a2ff]/30 bg-gradient-to-b from-[#00a2ff]/10 to-white px-4 py-20 text-center">
       <span className="h-12 w-12 animate-spin rounded-full border-4 border-[#00a2ff]/20 border-t-[#00a2ff]"/>
       <p key={n}className="msg-in text-sm font-medium text-zinc-600"aria-live="polite">
         {$[n].text}
@@ -286,7 +286,7 @@
           {u.map(r=><span key={r.id}className="reveal-confetti-piece absolute top-0 h-2 w-2 rounded-sm"style={{left:`${r.left}%`,backgroundColor:r.color,animationDelay:`${r.delay}s`,animationDuration:`${r.duration}s`,transform:`rotate(${r.rotate}deg)`}}/>)}
         </div>
         <p className="relative text-sm font-semibold uppercase tracking-wide text-[#00a2ff]">
-          ð We&apos;ve put together an Epic offer for you
+          🎉 We&apos;ve put together an Epic offer for you
         </p>
         {n.length>1&&<ul className="relative mt-4 space-y-1 text-left">
             {n.map(r=><li key={r.key}className="flex items-start justify-between gap-2 text-sm">
@@ -329,9 +329,9 @@
         Your offer: <span className="font-bold text-zinc-900">{B(p)}</span>. Almost done, where should we collect from?
       </p>
       <div className="mb-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-zinc-500">
-        <span>ð Encrypted &amp; secure</span>
-        <span>ð Second-Hand Goods Act compliant</span>
-        <span>ð³ Multiple payout options</span>
+        <span>🔒 Encrypted &amp; secure</span>
+        <span>📋 Second-Hand Goods Act compliant</span>
+        <span>💳 Multiple payout options</span>
       </div>
       <F label="Full name"required value={e.fullName}onChange={x("fullName")}/>
       <F label="Cellphone number"required type="tel"value={e.phone}onChange={x("phone")}/>
@@ -383,7 +383,7 @@
           <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-500">
             Banking details, for your payout
           </p>
-          <p className="mb-2 text-xs text-zinc-500">ð Used only to pay you for this sale.</p>
+          <p className="mb-2 text-xs text-zinc-500">🔒 Used only to pay you for this sale.</p>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="mb-1 block text-sm font-medium text-zinc-700">
@@ -434,7 +434,7 @@
           </label>
           <p className="mb-1 text-xs text-zinc-500">A clear colour photo, no black-and-white copies, showing your photo and ID number.</p>
           <input type="file"accept="image/*,application/pdf"required={u.status!=="done"}onChange={c=>r(c.target.files?.[0])}className="block w-full text-sm text-zinc-600 file:mr-3 file:rounded-lg file:border-0 file:bg-[#00a2ff] file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:brightness-95"/>
-          {u.status==="uploading"&&<p className="mt-1 text-xs text-zinc-500">Uploading {u.fileName}â¦</p>}
+          {u.status==="uploading"&&<p className="mt-1 text-xs text-zinc-500">Uploading {u.fileName}…</p>}
           {u.status==="done"&&<p className="mt-1 text-xs text-green-600">Uploaded, {u.fileName}</p>}
           {u.status==="error"&&<p className="mt-1 text-xs text-red-600">Couldn&apos;t upload that file, {u.error}. Try again.</p>}
         </div>
@@ -447,13 +447,13 @@
             Face the camera directly with nothing covering your face, so we can confirm it&apos;s really you selling.
           </p>
           <input type="file"accept="image/*"required={b.status!=="done"}onChange={c=>A(c.target.files?.[0])}className="block w-full text-sm text-zinc-600 file:mr-3 file:rounded-lg file:border-0 file:bg-[#00a2ff] file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:brightness-95"/>
-          {b.status==="uploading"&&<p className="mt-1 text-xs text-zinc-500">Uploading {b.fileName}â¦</p>}
+          {b.status==="uploading"&&<p className="mt-1 text-xs text-zinc-500">Uploading {b.fileName}…</p>}
           {b.status==="done"&&<p className="mt-1 text-xs text-green-600">Uploaded, {b.fileName}</p>}
           {b.status==="error"&&<p className="mt-1 text-xs text-red-600">Couldn&apos;t upload that file, {b.error}. Try again.</p>}
         </div>
 
         <p className="mt-3 text-xs text-zinc-500">
-          ð Your ID and selfie are encrypted and only ever used to verify your identity for this sale, as required
+          🔒 Your ID and selfie are encrypted and only ever used to verify your identity for this sale, as required
           under the Second-Hand Goods Act.
         </p>
 
@@ -500,7 +500,7 @@
         </label>
       </div>
       <button type="submit"disabled={!j}className="w-full rounded-xl bg-[#00a2ff] px-4 py-3.5 font-semibold text-white shadow-sm transition hover:brightness-95 hover:shadow-[0_0_20px_rgba(0,162,255,0.35)] disabled:opacity-60 disabled:hover:shadow-none">
-        {l?"Submittingâ¦":"Let's do it!"}
+        {l?"Submitting…":"Let's do it!"}
       </button>
     </form>}const Ye=["We'll take it from here.","Kettle's on, we won't be long.","No further haggling required, promise.","Sit back, we've got this one."];function $t({leadId:e,total:n,items:a}){const[l]=m(()=>Ye[Math.floor(Math.random()*Ye.length)]);return<div className="rounded-xl border border-green-200 bg-green-50 p-5 text-center">
       <p className="text-lg font-semibold text-green-800">Thanks, we&apos;ve got your details!</p>
@@ -516,7 +516,7 @@
       </label>
       <input type={a}required={n}value={l}onChange={f}className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 focus:border-[#00a2ff] focus:outline-none focus:ring-1 focus:ring-[#00a2ff]"{...p}/>
     </div>}function I({onClick:e,label:n}){return<button type="button"onClick={e}className="mb-1 text-sm font-medium text-[#00a2ff] hover:underline">
-      â {n}
+      ← {n}
     </button>}function Ce({rows:e}){return<div className="space-y-2">
       {Array.from({length:e}).map((n,a)=><div key={a}className="skeleton-shimmer h-14 rounded-xl"/>)}
     </div>}
