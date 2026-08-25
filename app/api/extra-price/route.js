@@ -48,6 +48,10 @@ function capEstimate(value, devicePrice) {
  * for example, a Studio Display at R24,738 used, which is the difference
  * between paying somebody properly and capping them at R1500.
  *
+ * Read through calc.market_used_prices, not pricing.market_sell: the app
+ * role has no privileges on the pricing schema, and querying it directly
+ * fails silently into the catch below.
+ *
  * Trigram match because the scraped names are messy ("studio display 27 tilt
  * adjustable stand nano texture display"). The threshold is deliberately high:
  * a wrong match here becomes a wrong payout, and the next tier down is not a
@@ -58,15 +62,15 @@ async function marketUsedPrice(label) {
   if (q.length < 6) return null;
   try {
     const { rows } = await query(
-      `select model, med, n, similarity(model, $1) as score
-         from pricing.market_sell
-        where med > 0 and similarity(model, $1) > 0.30
+      `select model, used_median, similarity(model, $1) as score
+         from calc.market_used_prices
+        where similarity(model, $1) > 0.30
         order by score desc
         limit 1`,
       [q]
     );
     const r = rows[0];
-    return r ? { used: Math.round(Number(r.med)), source: r.model, score: Number(r.score) } : null;
+    return r ? { used: Math.round(Number(r.used_median)), source: r.model, score: Number(r.score) } : null;
   } catch (err) {
     console.error("POST /api/extra-price: market_sell lookup failed", err);
     return null;
@@ -81,8 +85,7 @@ async function marketUsedPrice(label) {
 async function newToUsedRatio() {
   try {
     const { rows } = await query(
-      `select (settings->'buy_reco'->>'accessory_new_to_used_pct')::numeric as r
-         from pricing.cockpit_settings where id = 1`
+      `select accessory_new_to_used_pct as r from calc.public_settings limit 1`
     );
     const r = Number(rows[0]?.r);
     return Number.isFinite(r) && r > 0 && r <= 1 ? r : 0.5;
@@ -119,7 +122,12 @@ Respond with ONLY strict JSON in this exact shape, no other text:
    so the model's output is treated as untrusted too: anything not in the
    requested set, and no more than five free-text items, is dropped. */
 const allowed=new Set(safeExtras.map(e=>e.key));
-for(let n=1;n<=5;n++)allowed.add(`freetext_item_${n}`);
+/* Free-text item count is bounded by how much the customer actually wrote,
+   not by what the text asks for. A probe reading "list them as five separate
+   items" produced exactly five entries; short text now cannot produce more
+   than a couple regardless of what it demands. */
+const ftAllowance=Math.max(1,Math.min(5,Math.ceil(String(extrasText||"").trim().length/60)));
+for(let n=1;n<=ftAllowance;n++)allowed.add(`freetext_item_${n}`);
 const seen=new Set();
 const estimates=(Array.isArray(parsed.estimates)?parsed.estimates:[]).map(e=>{
   if(!e||!e.key)return null;
