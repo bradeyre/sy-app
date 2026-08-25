@@ -183,7 +183,7 @@
     </div>}function Xt({config:e,selected:n,onToggle:a,freeText:l,onFreeTextChange:f,onContinue:p,onBack:i,onSkip:u}){const r=n.length>0||l.trim().length>0;return<div className="space-y-2">
       <I onClick={i}label="Back"/>
       <p className="mb-2 text-sm font-medium text-zinc-600">{e.groupLabel}</p>
-      <p className="mb-3 text-xs text-zinc-500">Got extra accessories to include? We&apos;ll estimate what we can offer for each one and add it to your total.</p>
+      <p className="mb-3 text-xs text-zinc-500">Got extra accessories to include? We&apos;ll estimate what we can offer for each one and add it to your total. Accessory values are estimates. We confirm them once your device arrives and we&apos;ve tested everything.</p>
       {e.options.map(b=><K key={b.key}checked={n.includes(b.key)}onClick={()=>a(b.key)}>
           {b.label}
         </K>)}
@@ -299,7 +299,7 @@
                       {[...r.appliedFaults.map(b=>`${b.label} (-${B(b.deduction)})`),...(r.aiProposedFaults||[]).map(b=>`${b.label} (-${B(b.deduction)}, pending review)`)].join(", ")}
                     </span>}
                   {r.extras?.filter(b=>b.value>0).length>0&&<span className="block text-xs text-emerald-600">
-                      Extras: {r.extras.filter(b=>b.value>0).map(b=>`${b.label} (+${B(b.value)})`).join(", ")}
+                      Extras (estimated, confirmed on testing): {r.extras.filter(b=>b.value>0).map(b=>`${b.label} (+${B(b.value)})`).join(", ")}
                     </span>}
                 </span>
                 <span className="shrink-0 font-medium text-zinc-900">
