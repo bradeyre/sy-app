@@ -6,6 +6,7 @@ import { isRateLimited } from "@/lib/rateLimit";
 import { syncLeadToAirtable } from "@/lib/airtable";
 import { getClientIp } from "@/lib/clientIp";
 import { readQuoteRef, newQuoteRef } from "@/lib/quoteRef";
+import { evaluateCoupon, claimCouponUse, releaseCouponUse, recordRedemption } from "@/lib/coupons";
 import { revalidateLeadPricing } from "@/lib/leadPricing";
 
 export const dynamic = "force-dynamic";
@@ -49,6 +50,7 @@ export async function POST(request) {
     accountType,
     branchCode,
     accountNumber,
+    couponCode,
     website, // honeypot, real users never see or fill this field
     renderedAt, // client timestamp (ms) from when the form was shown
   } = body || {};
@@ -104,6 +106,7 @@ export async function POST(request) {
   const reference = sessionQuoteRef || newQuoteRef(site.airtableSource);
 
   let validatedItems = items;
+  let serverSubtotal = null;
   let serverTotal = quotedTotal ?? null;
   let serverBonusPct = paymentBonusPct ?? null;
   let flags = [];
@@ -111,6 +114,7 @@ export async function POST(request) {
   try {
     const revalidated = await revalidateLeadPricing({ site, items, paymentPreference, quoteRef: sessionQuoteRef });
     validatedItems = revalidated.validatedItems;
+    serverSubtotal = revalidated.subtotal;
     serverTotal = revalidated.serverTotal;
     serverBonusPct = revalidated.serverBonusPct;
     flags = revalidated.flags;
@@ -126,6 +130,33 @@ export async function POST(request) {
   const tooFast = filledInMs !== null && filledInMs < 3000; // under 3s = almost certainly a bot
   const isSpam = honeypotTriggered || tooFast;
 
+  let coupon = null;
+  if (couponCode && serverSubtotal != null && !isSpam) {
+    try {
+      const evaluated = await evaluateCoupon({
+        code: couponCode,
+        siteKey: site.key,
+        subtotal: serverSubtotal,
+      });
+      if (evaluated.ok) {
+        // Claim the use before the lead is written, so a limited-run code can
+        // never be handed out more times than it allows.
+        if (await claimCouponUse(evaluated.couponId)) {
+          coupon = evaluated;
+          serverTotal = Math.round((Number(serverTotal) + evaluated.bonus) * 100) / 100;
+        } else {
+          flags = [...flags, "coupon_exhausted"];
+        }
+      } else {
+        flags = [...flags, "coupon_rejected"];
+      }
+    } catch (err) {
+      console.error("coupon evaluation failed", err);
+      flags = [...flags, "coupon_check_failed"];
+      needsReview = true;
+    }
+  }
+
   try {
     const { rows } = await query(
       `insert into calc.leads
@@ -136,8 +167,9 @@ export async function POST(request) {
          terms_accepted, privacy_accepted,
          bank_name, account_type, branch_code, account_number,
          payment_preference, payment_bonus_pct,
-         client_quoted_total, pricing_flags, needs_pricing_review, quote_ref)
-       values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32,$33,$34,$35,$36)
+         client_quoted_total, pricing_flags, needs_pricing_review, quote_ref,
+         coupon_code, coupon_bonus)
+       values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32,$33,$34,$35,$36,$37,$38)
        returning id`,
       [
         site.key,
@@ -176,11 +208,13 @@ export async function POST(request) {
         JSON.stringify(flags),
         needsReview,
         reference,
+        coupon?.code ?? null,
+        coupon?.bonus ?? null,
       ]
     );
 
     if (isSpam) {
-      // Don't tip off bots, still return success.
+      // Don't tip off bots, still return success. No coupon was claimed above.
       return NextResponse.json({ ok: true, id: rows[0].id, reference });
     }
 
@@ -189,6 +223,18 @@ export async function POST(request) {
     // needs. after() (backed by Vercel's waitUntil) keeps the customer's
     // success screen fast while guaranteeing the sync actually runs to
     // completion instead of racing the response.
+    if (coupon) {
+      after(() =>
+        recordRedemption({
+          couponId: coupon.couponId,
+          leadId: rows[0].id,
+          quoteRef: reference,
+          code: coupon.code,
+          bonus: coupon.bonus,
+        }).catch((err) => console.error("coupon redemption log failed", err))
+      );
+    }
+
     after(() =>
       syncLeadToAirtable({
         lead: {
@@ -224,6 +270,11 @@ export async function POST(request) {
     return NextResponse.json({ ok: true, id: rows[0].id, reference });
   } catch (err) {
     console.error("POST /api/lead failed", err);
+    if (coupon) {
+      await releaseCouponUse(coupon.couponId).catch((releaseErr) =>
+        console.error("could not release claimed coupon use", releaseErr)
+      );
+    }
     return NextResponse.json({ error: "Could not submit lead" }, { status: 500 });
   }
 }
