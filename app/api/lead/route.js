@@ -5,6 +5,7 @@ import { getSiteConfig } from "@/lib/siteConfig";
 import { isRateLimited } from "@/lib/rateLimit";
 import { syncLeadToAirtable } from "@/lib/airtable";
 import { getClientIp } from "@/lib/clientIp";
+import { readQuoteRef, newQuoteRef } from "@/lib/quoteRef";
 import { revalidateLeadPricing } from "@/lib/leadPricing";
 
 export const dynamic = "force-dynamic";
@@ -94,13 +95,21 @@ export async function POST(request) {
   // Guarded: if revalidation itself fails (database hiccup, timeout), we fall
   // back to storing the client's figures and flag the lead. Losing a real
   // customer's submission is worse than storing one unverified quote.
+  // The reference the browser has been carrying since the AI first priced a
+  // fault. It binds this submission to the proposals actually made to THIS
+  // customer, rather than to every proposal for the same device model. A lead
+  // that never triggered AI grading has none, so it gets a fresh one purely as
+  // a customer-facing reference.
+  const sessionQuoteRef = readQuoteRef(request);
+  const reference = sessionQuoteRef || newQuoteRef(site.airtableSource);
+
   let validatedItems = items;
   let serverTotal = quotedTotal ?? null;
   let serverBonusPct = paymentBonusPct ?? null;
   let flags = [];
   let needsReview = false;
   try {
-    const revalidated = await revalidateLeadPricing({ site, items, paymentPreference });
+    const revalidated = await revalidateLeadPricing({ site, items, paymentPreference, quoteRef: sessionQuoteRef });
     validatedItems = revalidated.validatedItems;
     serverTotal = revalidated.serverTotal;
     serverBonusPct = revalidated.serverBonusPct;
@@ -127,8 +136,8 @@ export async function POST(request) {
          terms_accepted, privacy_accepted,
          bank_name, account_type, branch_code, account_number,
          payment_preference, payment_bonus_pct,
-         client_quoted_total, pricing_flags, needs_pricing_review)
-       values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32,$33,$34,$35)
+         client_quoted_total, pricing_flags, needs_pricing_review, quote_ref)
+       values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32,$33,$34,$35,$36)
        returning id`,
       [
         site.key,
@@ -166,12 +175,13 @@ export async function POST(request) {
         quotedTotal ?? null,
         JSON.stringify(flags),
         needsReview,
+        reference,
       ]
     );
 
     if (isSpam) {
       // Don't tip off bots, still return success.
-      return NextResponse.json({ ok: true, id: rows[0].id });
+      return NextResponse.json({ ok: true, id: rows[0].id, reference });
     }
 
     // n8n owns the customer acknowledgment email; this app's job is just to
@@ -211,7 +221,7 @@ export async function POST(request) {
       }).catch((err) => console.error("syncLeadToAirtable unexpected error", err))
     );
 
-    return NextResponse.json({ ok: true, id: rows[0].id });
+    return NextResponse.json({ ok: true, id: rows[0].id, reference });
   } catch (err) {
     console.error("POST /api/lead failed", err);
     return NextResponse.json({ error: "Could not submit lead" }, { status: 500 });
