@@ -23,25 +23,87 @@ function storedExtraValues(site, category) {
 }
 
 /**
- * Ceiling for values the model guessed, and only those.
+ * Sanity guard on the NEW price, which is the only uncertain input left.
  *
- * Deliberately NOT applied to stored catalogue prices or to scraped
- * market_sell prices, which are evidence rather than guesses. Capping those
- * would have held a Studio Display at R1500 against a real used price of
- * R24,738, which is the opposite failure and just as expensive.
+ * The old guard capped the payout at R1500, which made sense when the model
+ * invented payouts directly. It does not now: it supplies a new price and a
+ * durability class, and the arithmetic is ours. Capping the payout would
+ * simply re-clamp a Studio Display to nonsense, which is the failure Brad
+ * called out.
+ *
+ * So the check moved upstream. A bundled accessory costing more than R60,000
+ * new is a misread rather than a windfall, and anything above a quarter of
+ * the device's own price is worth a person looking at it.
  */
-/* See marketUsedPrice below. Flip back on only when market_sell carries a
-   real basis per row rather than a fixed 0.8867 of a search lookup. */
-const USE_MARKET_LOOKUP = false;
-
-const AI_EXTRA_ABSOLUTE_CAP = 1500;
-function capEstimate(value, devicePrice) {
-  const relative =
-    Number.isFinite(devicePrice) && devicePrice > 0
-      ? Math.round(devicePrice * 0.25)
-      : AI_EXTRA_ABSOLUTE_CAP;
-  return Math.max(0, Math.min(value, AI_EXTRA_ABSOLUTE_CAP, relative));
+const MAX_PLAUSIBLE_NEW = 60000;
+function newPriceLooksSane(newPrice) {
+  return Number.isFinite(newPrice) && newPrice > 0 && newPrice <= MAX_PLAUSIBLE_NEW;
 }
+
+
+/**
+ * Work the price back from new.
+ *
+ *     payout = new_price x retention(class) x 0.50
+ *
+ * calc.new_prices is pricing.market_lookups, named for what it actually is:
+ * a new-retail source. It was previously consumed as a used price, and
+ * pricing.market_sell is just that same figure x 0.8867, which is why both
+ * were overpaying. Used as an input to the conversion instead of a
+ * substitute for it.
+ */
+async function newPriceFor(label) {
+  const q = String(label || "").trim();
+  if (q.length < 6) return null;
+  try {
+    const { rows } = await query(
+      `select model, new_price, single_datapoint, similarity(model, $1) as score
+         from calc.new_prices
+        where similarity(model, $1) > 0.34
+        order by score desc
+        limit 1`,
+      [q]
+    );
+    const r = rows[0];
+    return r
+      ? { newPrice: Math.round(Number(r.new_price)), source: r.model,
+          thin: r.single_datapoint === true, score: Number(r.score) }
+      : null;
+  } catch (err) {
+    console.error("POST /api/extra-price: new price lookup failed", err);
+    return null;
+  }
+}
+
+/**
+ * What a thing fetches second-hand as a fraction of new, by durability class.
+ * Four numbers in the database, not a per-product table and not a constant in
+ * a prompt. The model picks the class; it never does the arithmetic.
+ */
+const RETENTION_FALLBACK = {
+  personal_accessory: 0.35,
+  peripheral: 0.5,
+  durable: 0.6,
+  premium_durable: 0.75,
+};
+
+async function retentionTable() {
+  try {
+    const { rows } = await query(
+      `select retention_by_class, accessory_new_to_used_pct from calc.public_settings limit 1`
+    );
+    const t = rows[0]?.retention_by_class || {};
+    return Object.keys(t).length ? t : RETENTION_FALLBACK;
+  } catch {
+    return RETENTION_FALLBACK;
+  }
+}
+
+function retentionFor(table, cls) {
+  const r = Number(table?.[cls]);
+  return Number.isFinite(r) && r > 0 && r <= 1 ? r : 0.5;
+}
+
 
 
 /**
@@ -129,9 +191,13 @@ For each item, report what it sells for SECOND-HAND between private parties in S
 
 Anchor on the reference prices above. Each is already half of that item's second-hand price, so a reference payout of R500 means a second-hand price of about R1000. Place each item relative to the rows you recognise.
 
-If you know the second-hand price, give it as used_price_zar and leave new_price_zar null.
+Give new_price_zar: what the item costs NEW in South Africa. This is the figure you are most likely to know, and it is the one we want. Do not convert it to a second-hand price; that happens in code.
 
-If you do not know the second-hand price but you do know what the item costs new in South Africa, then set used_price_zar to null and give new_price_zar instead. Do not convert between them yourself; that conversion happens in code. Reporting a new price you are sure of is more useful than a second-hand price you are guessing at.
+Give retention_class, which says how well this kind of thing holds its value second-hand:
+- "personal_accessory": small personal items that depreciate hard. Styluses, earbuds, cases, cables, straps.
+- "peripheral": keyboards, mice, controllers, chargers, docks, hubs.
+- "durable": appliances and gear built to last. Hair tools, coffee machines, action cameras, drones.
+- "premium_durable": expensive things with a strong second-hand market. Monitors and displays, pro audio, high-end camera bodies and lenses.
 
 Also report for each item:
 - match: the reference key for the same product, or null if nothing matches.
@@ -141,7 +207,7 @@ Also report for each item:
 Use the given key for catalogue items, and freetext_item_1, freetext_item_2 and so on, in order of appearance, for items from the customer text. At most 5 freetext items.
 
 Respond with ONLY strict JSON in this exact shape, no other text:
-{"estimates":[{"key":"...","label":"...","match":"<reference key or null>","kind":"accessory|device|other","used_price_zar":<integer or null>,"new_price_zar":<integer or null>,"confidence":"high|low|none","reasoning":"<one short sentence>"}]}`,res=await callAI(apiKey,{max_tokens:2048,temperature:0,messages:[{role:"user",content:prompt}]});if(!res)return NextResponse.json({estimates:storedEstimates});try{const jsonMatch=((await res.json())?.content?.[0]?.text||"").match(/\{[\s\S]*\}/);if(!jsonMatch)return NextResponse.json({estimates:storedEstimates});const parsed=JSON.parse(jsonMatch[0]);
+{"estimates":[{"key":"...","label":"...","match":"<reference key or null>","kind":"accessory|device|other","new_price_zar":<integer or null>,"retention_class":"personal_accessory|peripheral|durable|premium_durable","confidence":"high|low|none","reasoning":"<one short sentence>"}]}`,res=await callAI(apiKey,{max_tokens:2048,temperature:0,messages:[{role:"user",content:prompt}]});if(!res)return NextResponse.json({estimates:storedEstimates});try{const jsonMatch=((await res.json())?.content?.[0]?.text||"").match(/\{[\s\S]*\}/);if(!jsonMatch)return NextResponse.json({estimates:storedEstimates});const parsed=JSON.parse(jsonMatch[0]);
 /* Only keys we asked for. The customer controls 500 characters of the prompt,
    so the model's output is treated as untrusted too: anything not in the
    requested set, and no more than five free-text items, is dropped. */
@@ -176,37 +242,34 @@ const estimates=(Array.isArray(parsed.estimates)?parsed.estimates:[]).map(e=>{
 /* Resolution cascade, best evidence first. We only fall back to the model's
    own number when nothing better exists, and we never let it do the
    arithmetic. */
-const ratio=await newToUsedRatio();
+const retention=await retentionTable();
 const resolved=[];
 for(const item of estimates){
   if(item.value!==undefined){resolved.push(item);continue}
   const e=item.raw;
-  /* Real scraped used price beats anything the model recalls, and it is what
-     rescues genuinely valuable items typed into free text. */
-  const mkt=USE_MARKET_LOOKUP?await marketUsedPrice(item.label):null;
-  if(mkt){
-    resolved.push({key:item.key,label:item.label,value:Math.round(mkt.used*0.5),trusted:true,
-      reasoning:`Based on a scraped used price of R${mkt.used}.`});
+  const cls=String(e.retention_class||"peripheral");
+  const rate=retentionFor(retention,cls);
+
+  /* A new price from the catalogue beats one the model recalled. Either way
+     the arithmetic is ours: new x retention x 0.50. */
+  const known=await newPriceFor(item.label);
+  const modelNew=Math.round(Number(e.new_price_zar));
+  const newPrice=known?known.newPrice:(Number.isFinite(modelNew)&&modelNew>0?modelNew:null);
+
+  if(newPrice&&newPriceLooksSane(newPrice)){
+    resolved.push({
+      key:item.key,label:item.label,
+      value:Math.round(newPrice*rate*0.5),
+      trusted:!!known,
+      reasoning:`R${newPrice} new, ${cls.replace(/_/g," ")} holds ${Math.round(rate*100)}%, we pay half of that.`
+    });
     continue;
   }
-  const used=Math.round(Number(e.used_price_zar));
-  if(e.kind==="accessory"&&e.confidence==="high"&&Number.isFinite(used)&&used>0){
-    resolved.push({key:item.key,label:item.label,value:Math.round(used*0.5),reasoning:item.reasoning});
-    continue;
-  }
-  /* Only a new price known. Convert with the configured ratio rather than
-     letting the model do it, which is how the last round of overpricing
-     happened. Accessories only: a device this far down the cascade is worth
-     a human looking at it. */
-  const nw=Math.round(Number(e.new_price_zar));
-  if(e.kind==="accessory"&&Number.isFinite(nw)&&nw>0){
-    resolved.push({key:item.key,label:item.label,value:Math.round(nw*ratio*0.5),
-      reasoning:`Estimated from a new price of R${nw}.`});
-    continue;
-  }
+
+  /* Genuinely nothing to work from. Rare, now that a new price is enough. */
   resolved.push({key:item.key,label:item.label,value:0,pendingReview:true,
     reasoning:item.reasoning||"Needs a human to price."});
 }let quoteRef=existingQuoteRef;if(resolved.length>0){if(!quoteRef){let prefix="SY";try{const site=await getSiteConfig({host:request.headers.get("host"),overrideKey:new URL(request.url).searchParams.get("site")});prefix=site.airtableSource||"SY"}catch(refErr){console.error("POST /api/extra-price: could not resolve site for quote reference, using generic prefix",refErr)}quoteRef=newQuoteRef(prefix)}const refForLog=quoteRef;await query(`insert into calc.ai_extra_estimates
 (category, model, capacity, extra_key, extra_label, estimated_value, reasoning, quote_ref)
 select $1, $2, $3, e.key, e.label, e.value, e.reasoning, $5
-from jsonb_to_recordset($4::jsonb) as e(key text, label text, value numeric, reasoning text)`,[category,model,capacity||"N/A",JSON.stringify(resolved),refForLog]).catch(err=>console.error("POST /api/extra-price: audit log insert failed",err))}const response=NextResponse.json({estimates:[...storedEstimates,...resolved.map(e=>({...e,value:e.value>0&&!e.trusted?capEstimate(e.value,Number(devicePrice)):e.value}))]});return quoteRef?attachQuoteRef(response,quoteRef):response}catch(err){return console.error("POST /api/extra-price: could not parse AI response",err),NextResponse.json({estimates:storedEstimates})}}
+from jsonb_to_recordset($4::jsonb) as e(key text, label text, value numeric, reasoning text)`,[category,model,capacity||"N/A",JSON.stringify(resolved),refForLog]).catch(err=>console.error("POST /api/extra-price: audit log insert failed",err))}const response=NextResponse.json({estimates:[...storedEstimates,...resolved]});return quoteRef?attachQuoteRef(response,quoteRef):response}catch(err){return console.error("POST /api/extra-price: could not parse AI response",err),NextResponse.json({estimates:storedEstimates})}}
