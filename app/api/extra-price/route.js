@@ -30,6 +30,10 @@ function storedExtraValues(site, category) {
  * would have held a Studio Display at R1500 against a real used price of
  * R24,738, which is the opposite failure and just as expensive.
  */
+/* See marketUsedPrice below. Flip back on only when market_sell carries a
+   real basis per row rather than a fixed 0.8867 of a search lookup. */
+const USE_MARKET_LOOKUP = false;
+
 const AI_EXTRA_ABSOLUTE_CAP = 1500;
 function capEstimate(value, devicePrice) {
   const relative =
@@ -41,7 +45,27 @@ function capEstimate(value, devicePrice) {
 
 
 /**
- * Real scraped used prices, looked up before the model is asked to guess.
+ * DISABLED 2026-08-25, hours after being added, because the data is not what
+ * its name says.
+ *
+ * pricing.market_sell is NOT independent used-market data. Every row is
+ * pricing.market_lookups.market_price multiplied by exactly 0.8867: 357 of
+ * the 509 overlapping models sit on that constant to four decimal places,
+ * across ten unrelated categories. It is a fixed haircut off a search-API
+ * lookup, not an observation.
+ *
+ * And the lookup's own basis varies per row. A GoPro Hero 12 comes back at
+ * R6,999, which is new SA retail. AirPods Max comes back at about R5,800,
+ * which is nearer used. So the basis is unknown per row and cannot be
+ * assumed either way.
+ *
+ * Consequence while this was live: an accessory resolved here was paid 50%
+ * of (new x 0.8867), so roughly 44% of NEW. That is the same overpayment
+ * fixed this morning, re-entering through a different door. A Studio Display
+ * quoted R12,369 on that basis.
+ *
+ * Left in place rather than deleted so the next person sees why. Re-enable
+ * only when the table carries a real per-row basis and genuine observations.
  *
  * pricing.market_sell holds 1017 scraped market-selling rows across 704
  * models, and nothing in the accessory path was ever consulting it. It has,
@@ -159,7 +183,7 @@ for(const item of estimates){
   const e=item.raw;
   /* Real scraped used price beats anything the model recalls, and it is what
      rescues genuinely valuable items typed into free text. */
-  const mkt=await marketUsedPrice(item.label);
+  const mkt=USE_MARKET_LOOKUP?await marketUsedPrice(item.label):null;
   if(mkt){
     resolved.push({key:item.key,label:item.label,value:Math.round(mkt.used*0.5),trusted:true,
       reasoning:`Based on a scraped used price of R${mkt.used}.`});
