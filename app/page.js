@@ -247,8 +247,7 @@
         </div>}
 
       {g?<p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
-          Sorry, we&apos;re not able to buy back a device in this condition right now. Untick that above to continue
-          with a different fault, or go back and choose a different condition.
+          {g.declineMessage||"We are not able to buy a device in this condition. If you selected that by mistake, go back and choose the condition that matches."}
         </p>:<p className="px-1 pt-1 text-xs text-zinc-500">
           Select anything that applies, we&apos;ll adjust your offer to reflect it. Nothing to report? Just hit
           continue.
