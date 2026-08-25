@@ -2,7 +2,7 @@ import{NextResponse}from"next/server";import{after}from"next/server";import{quer
 
 The customer wants to include these extra accessories with their ${String(category||"device").toLowerCase()} trade-in:
 ${extrasList}${freeTextSection}
-For each item, estimate a fair trade-in value in ZAR (South African Rand) that Epic Deals would pay. This should be roughly 40-50% of the item's current used retail value in South Africa, giving Epic Deals room for resale margin. Be realistic about what these items actually sell for second-hand in South Africa.
+For each item, estimate a fair trade-in value in ZAR (South African Rand) that Epic Deals would pay. This should be 50% of the item's current used retail value in South Africa, giving Epic Deals room for resale margin. Use 50%, not a range and not less. Be realistic about what these items actually sell for second-hand in South Africa.
 
 For any free-text described items, create a separate estimate entry with a descriptive label and key "freetext_item_N" (where N is 1, 2, etc.).
 
