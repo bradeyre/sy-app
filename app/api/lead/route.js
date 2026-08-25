@@ -261,6 +261,8 @@ export async function POST(request) {
           paymentBonusPct,
           siteDomain: site.domain,
           airtableSource: site.airtableSource,
+          couponCode: coupon?.code ?? null,
+          couponBonus: coupon?.bonus ?? null,
         },
         items: validatedItems,
         brand: site.where?.brand || "",
