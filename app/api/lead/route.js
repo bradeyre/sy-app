@@ -1,10 +1,219 @@
-import{NextResponse}from"next/server";import{after}from"next/server";import{query}from"@/lib/db";import{getSiteConfig}from"@/lib/siteConfig";import{isRateLimited}from"@/lib/rateLimit";import{syncLeadToAirtable}from"@/lib/airtable";export const dynamic="force-dynamic";function getClientIp(request){const fwd=request.headers.get("x-forwarded-for");return fwd?fwd.split(",")[0].trim():request.headers.get("x-real-ip")||"unknown"}export async function POST(request){const site=await getSiteConfig({host:request.headers.get("host"),overrideKey:new URL(request.url).searchParams.get("site")});let body;try{body=await request.json()}catch{return NextResponse.json({error:"Invalid request body"},{status:400})}const{items,quotedTotal,paymentPreference,paymentBonusPct,fullName,phone,email,address,suburb,city,province,postalCode,residentialAddress,preferredCollectionDate,notes,idNumber,idDocumentPath,selfiePath,ageConfirmed,termsAccepted,privacyAccepted,bankName,accountType,branchCode,accountNumber,website,renderedAt}=body||{};if(!fullName||!phone||!Array.isArray(items)||items.length===0)return NextResponse.json({error:"Missing required fields"},{status:400});if(!idNumber||!idDocumentPath||!selfiePath||!ageConfirmed||!termsAccepted||!privacyAccepted)return NextResponse.json({error:"ID number, a copy of your ID/passport, a selfie, and accepting the terms and privacy policy are all required to sell to us"},{status:400});if((paymentPreference==="eft"||paymentPreference==="consignment")&&(!bankName||!accountType||!branchCode||!accountNumber))return NextResponse.json({error:"Bank name, account type, branch code, and account number are required for this payment option"},{status:400});const ip=getClientIp(request);if(isRateLimited(`${site.key}:${ip}`))return NextResponse.json({error:"Too many submissions, please try again later"},{status:429});const honeypotTriggered=!!website,filledInMs=renderedAt?Date.now()-Number(renderedAt):null,tooFast=filledInMs!==null&&filledInMs<3e3,isSpam=honeypotTriggered||tooFast;try{const{rows}=await query(`insert into calc.leads
-(site, status, items, quoted_total, full_name, phone, email, address, suburb, city,
-province, postal_code, residential_address,
-preferred_collection_date, notes, ip_address, user_agent, honeypot_triggered, source_url,
-id_number, id_document_path, selfie_path, age_confirmed, id_verification_method,
-terms_accepted, privacy_accepted,
-bank_name, account_type, branch_code, account_number,
-payment_preference, payment_bonus_pct)
-values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32)
-returning id`,[site.key,isSpam?"spam":"new",JSON.stringify(items),quotedTotal??null,fullName,phone,email||null,address||null,suburb||null,city||null,province||null,postalCode||null,residentialAddress!==!1,preferredCollectionDate||null,notes||null,ip!=="unknown"?ip:null,request.headers.get("user-agent")||null,honeypotTriggered,request.headers.get("referer")||null,idNumber,idDocumentPath,selfiePath,!!ageConfirmed,"uploaded",!!termsAccepted,!!privacyAccepted,bankName||null,accountType||null,branchCode||null,accountNumber||null,paymentPreference||null,paymentBonusPct??null]);return isSpam?NextResponse.json({ok:!0,id:rows[0].id}):(after(()=>syncLeadToAirtable({lead:{fullName,phone,email,address,suburb,city,province,residentialAddress:residentialAddress!=!1,preferredCollectionDate,idNumber,idDocumentPath,selfiePath,ageConfirmed:!!ageConfirmed,termsAccepted:!!termsAccepted,privacyAccepted:!!privacyAccepted,bankName,accountType,branchCode,accountNumber,paymentPreference,paymentBonusPct,siteDomain:site.domain,airtableSource:site.airtableSource},items,brand:site.where?.brand||""}).catch(err=>console.error("syncLeadToAirtable unexpected error",err))),NextResponse.json({ok:!0,id:rows[0].id}))}catch(err){return console.error("POST /api/lead failed",err),NextResponse.json({error:"Could not submit lead"},{status:500})}}
+import { NextResponse } from "next/server";
+import { after } from "next/server";
+import { query } from "@/lib/db";
+import { getSiteConfig } from "@/lib/siteConfig";
+import { isRateLimited } from "@/lib/rateLimit";
+import { syncLeadToAirtable } from "@/lib/airtable";
+import { getClientIp } from "@/lib/clientIp";
+import { revalidateLeadPricing } from "@/lib/leadPricing";
+
+export const dynamic = "force-dynamic";
+
+export async function POST(request) {
+  const site = await getSiteConfig({
+    host: request.headers.get("host"),
+    overrideKey: new URL(request.url).searchParams.get("site"),
+  });
+
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+  }
+
+  const {
+    items,
+    quotedTotal,
+    paymentPreference,
+    paymentBonusPct,
+    fullName,
+    phone,
+    email,
+    address,
+    suburb,
+    city,
+    province,
+    postalCode,
+    residentialAddress,
+    preferredCollectionDate,
+    notes,
+    idNumber,
+    idDocumentPath,
+    selfiePath,
+    ageConfirmed,
+    termsAccepted,
+    privacyAccepted,
+    bankName,
+    accountType,
+    branchCode,
+    accountNumber,
+    website, // honeypot, real users never see or fill this field
+    renderedAt, // client timestamp (ms) from when the form was shown
+  } = body || {};
+
+  if (!fullName || !phone || !Array.isArray(items) || items.length === 0) {
+    return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+  }
+
+  // Second-Hand Goods Act 6 of 2009 (s2) requires an ID/passport number, a
+  // copy of the ID document, and that the seller isn't a minor, captured per
+  // transaction, plus a selfie, terms acceptance, and privacy acceptance
+  // (matched live against epicdeals.co.za/trade-in).
+  if (!idNumber || !idDocumentPath || !selfiePath || !ageConfirmed || !termsAccepted || !privacyAccepted) {
+    return NextResponse.json(
+      {
+        error:
+          "ID number, a copy of your ID/passport, a selfie, and accepting the terms and privacy policy are all required to sell to us",
+      },
+      { status: 400 }
+    );
+  }
+
+  // Banking details are needed for EFT and consignment payouts.
+  const needsBankDetails = paymentPreference === "eft" || paymentPreference === "consignment";
+  if (needsBankDetails && (!bankName || !accountType || !branchCode || !accountNumber)) {
+    return NextResponse.json(
+      { error: "Bank name, account type, branch code, and account number are required for this payment option" },
+      { status: 400 }
+    );
+  }
+
+  // Rate limit FIRST. Revalidation runs several database queries per item, so
+  // doing it before this check would hand an attacker unlimited expensive work
+  // for free.
+  const ip = getClientIp(request);
+  if (isRateLimited(`${site.key}:${ip}`)) {
+    return NextResponse.json({ error: "Too many submissions, please try again later" }, { status: 429 });
+  }
+
+  // Recompute prices and fault deductions from the real database instead of
+  // trusting whatever the browser sent. Never blocks the submission on a
+  // mismatch -- flags it for review instead.
+  //
+  // Guarded: if revalidation itself fails (database hiccup, timeout), we fall
+  // back to storing the client's figures and flag the lead. Losing a real
+  // customer's submission is worse than storing one unverified quote.
+  let validatedItems = items;
+  let serverTotal = quotedTotal ?? null;
+  let serverBonusPct = paymentBonusPct ?? null;
+  let flags = [];
+  let needsReview = false;
+  try {
+    const revalidated = await revalidateLeadPricing({ site, items, paymentPreference });
+    validatedItems = revalidated.validatedItems;
+    serverTotal = revalidated.serverTotal;
+    serverBonusPct = revalidated.serverBonusPct;
+    flags = revalidated.flags;
+    needsReview = revalidated.needsReview;
+  } catch (err) {
+    console.error("revalidateLeadPricing failed, storing client figures", err);
+    flags = ["pricing_revalidation_failed"];
+    needsReview = true;
+  }
+
+  const honeypotTriggered = Boolean(website);
+  const filledInMs = renderedAt ? Date.now() - Number(renderedAt) : null;
+  const tooFast = filledInMs !== null && filledInMs < 3000; // under 3s = almost certainly a bot
+  const isSpam = honeypotTriggered || tooFast;
+
+  try {
+    const { rows } = await query(
+      `insert into calc.leads
+        (site, status, items, quoted_total, full_name, phone, email, address, suburb, city,
+         province, postal_code, residential_address,
+         preferred_collection_date, notes, ip_address, user_agent, honeypot_triggered, source_url,
+         id_number, id_document_path, selfie_path, age_confirmed, id_verification_method,
+         terms_accepted, privacy_accepted,
+         bank_name, account_type, branch_code, account_number,
+         payment_preference, payment_bonus_pct,
+         client_quoted_total, pricing_flags, needs_pricing_review)
+       values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32,$33,$34,$35)
+       returning id`,
+      [
+        site.key,
+        isSpam ? "spam" : "new",
+        JSON.stringify(validatedItems),
+        serverTotal,
+        fullName,
+        phone,
+        email || null,
+        address || null,
+        suburb || null,
+        city || null,
+        province || null,
+        postalCode || null,
+        residentialAddress === false ? false : true,
+        preferredCollectionDate || null,
+        notes || null,
+        ip !== "unknown" ? ip : null,
+        request.headers.get("user-agent") || null,
+        honeypotTriggered,
+        request.headers.get("referer") || null,
+        idNumber,
+        idDocumentPath,
+        selfiePath,
+        Boolean(ageConfirmed),
+        "uploaded",
+        Boolean(termsAccepted),
+        Boolean(privacyAccepted),
+        bankName || null,
+        accountType || null,
+        branchCode || null,
+        accountNumber || null,
+        paymentPreference || null,
+        serverBonusPct,
+        quotedTotal ?? null,
+        JSON.stringify(flags),
+        needsReview,
+      ]
+    );
+
+    if (isSpam) {
+      // Don't tip off bots, still return success.
+      return NextResponse.json({ ok: true, id: rows[0].id });
+    }
+
+    // n8n owns the customer acknowledgment email; this app's job is just to
+    // make sure the Airtable record it writes has the fields that template
+    // needs. after() (backed by Vercel's waitUntil) keeps the customer's
+    // success screen fast while guaranteeing the sync actually runs to
+    // completion instead of racing the response.
+    after(() =>
+      syncLeadToAirtable({
+        lead: {
+          fullName,
+          phone,
+          email,
+          address,
+          suburb,
+          city,
+          province,
+          residentialAddress: residentialAddress !== false,
+          preferredCollectionDate,
+          idNumber,
+          idDocumentPath,
+          selfiePath,
+          ageConfirmed: Boolean(ageConfirmed),
+          termsAccepted: Boolean(termsAccepted),
+          privacyAccepted: Boolean(privacyAccepted),
+          bankName,
+          accountType,
+          branchCode,
+          accountNumber,
+          paymentPreference,
+          paymentBonusPct,
+          siteDomain: site.domain,
+          airtableSource: site.airtableSource,
+        },
+        items: validatedItems,
+        brand: site.where?.brand || "",
+      }).catch((err) => console.error("syncLeadToAirtable unexpected error", err))
+    );
+
+    return NextResponse.json({ ok: true, id: rows[0].id });
+  } catch (err) {
+    console.error("POST /api/lead failed", err);
+    return NextResponse.json({ error: "Could not submit lead" }, { status: 500 });
+  }
+}
