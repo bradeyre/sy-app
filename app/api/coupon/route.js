@@ -38,6 +38,8 @@ export async function POST(request) {
       code: body?.code,
       siteKey: site.key,
       subtotal: Number(body?.subtotal) || 0,
+      // Preview only, and clamped so a silly value can't render a silly number.
+      itemCount: Math.min(50, Math.max(1, Math.floor(Number(body?.itemCount) || 1))),
     });
     if (!result.ok) return NextResponse.json({ ok: false, error: result.error });
     return NextResponse.json({

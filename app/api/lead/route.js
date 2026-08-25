@@ -137,6 +137,9 @@ export async function POST(request) {
         code: couponCode,
         siteKey: site.key,
         subtotal: serverSubtotal,
+        // The server's own count of the devices it actually priced, never the
+        // browser's, so a per-device coupon can't be told there were ten.
+        itemCount: validatedItems.length,
       });
       if (evaluated.ok) {
         // Claim the use before the lead is written, so a limited-run code can
