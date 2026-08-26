@@ -273,7 +273,7 @@ export async function POST(request) {
     );
 
     after(() =>
-      fetch("https://n8n.theautomators.co/webhook/syi-lead", {
+      fetch("https://n8n.theautomators.co/webhook/syi-lead-v2", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
