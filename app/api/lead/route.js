@@ -273,26 +273,41 @@ export async function POST(request) {
     );
 
     after(() =>
-      fetch("https://n8n.theautomators.co/webhook/syi-lead", {
+      fetch("https://api.airtable.com/v0/appMB4HF3PkGe2rZd/tblx9AkbkYzo8Cqhu", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Authorization": `Bearer ${process.env.AIRTABLE_API_KEY}`, "Content-Type": "application/json" },
         body: JSON.stringify({
-          lead: {
-            fullName, phone, email, address, suburb, city, province,
-            postalCode, residentialAddress: residentialAddress !== false,
-            preferredCollectionDate, idNumber, idDocumentPath, selfiePath,
-            ageConfirmed: Boolean(ageConfirmed), termsAccepted: Boolean(termsAccepted),
-            privacyAccepted: Boolean(privacyAccepted), bankName, accountType,
-            branchCode, accountNumber, paymentPreference, paymentBonusPct,
-            siteDomain: site.domain, airtableSource: site.airtableSource,
-            couponCode: coupon?.code ?? null, couponBonus: coupon?.bonus ?? null,
-            quoteRef: reference,
-          },
-          items: validatedItems,
-          brand: site.where?.brand || "",
-          site: site.key,
+          records: validatedItems.map(device => ({
+            fields: {
+              "Client First Name": (fullName || '').split(' ')[0] || '',
+              "Client Surname": (fullName || '').split(' ').slice(1).join(' ') || '',
+              "Client Phone Number": phone || '',
+              "Client Email": email || '',
+              "Client Street Number and Name": address || '',
+              "Client Suburb": suburb || '',
+              "Client City": city || '',
+              "Client Province": province || '',
+              "Collection=Residential?": residentialAddress !== false ? 'Yes' : 'No',
+              "Client ID Number": idNumber || '',
+              "Bank Name (Client)": bankName || '',
+              "Bank Account Number (Client)": accountNumber || '',
+              "Bank Account Type (Client)": accountType || '',
+              "Client Bank Branch Code": branchCode || '',
+              "Source": site.airtableSource || (site.key || '').toUpperCase(),
+              "Payment Preference": paymentPreference === 'eft' ? 'Default (EFT)' : (paymentPreference === 'consignment' ? 'Epic Deals Consignment (10% Extra)' : 'Default (EFT)'),
+              "Stated Condition": (device.condition || '').charAt(0).toUpperCase() + (device.condition || '').slice(1).toLowerCase(),
+              "Stated Device Model (Strict)": device.model || '',
+              "Stated Capacity": device.capacity || '',
+              "Quoted Value": device.quotedPrice || 0,
+              "T's and C's Agreement?": termsAccepted ? 'Yes' : 'No',
+              "Privacy Policy Agreement?": privacyAccepted ? 'Yes' : 'No',
+              "Legal Owner?": ageConfirmed ? 'Yes' : 'No',
+              "Device Model (Text)": validatedItems.map(d => `${d.model || ''} ${d.capacity || ''} (${d.condition || ''})`).join(', '),
+              "Website Sent From": site.domain || '',
+            }
+          }))
         }),
-      }).catch((err) => console.error("webhook fallback failed", err))
+      }).catch((err) => console.error("airtable direct write failed", err))
     );
 
     return NextResponse.json({ ok: true, id: rows[0].id, reference });
