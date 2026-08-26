@@ -23,7 +23,7 @@ export async function POST(request) {
   if (asked.length === 0) return NextResponse.json({ error: "no leads" }, { status: 400 });
 
   const { rows: sites } = await query(
-    "select site_key, domain, airtable_source, brand_filter from pricing.site_catalog"
+    "select site_key, domain, airtable_source, brand_filter from calc.site_config"
   );
   const siteBy = Object.fromEntries(sites.map((s) => [s.site_key, s]));
   const results = [];
