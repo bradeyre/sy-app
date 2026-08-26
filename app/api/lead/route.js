@@ -272,6 +272,29 @@ export async function POST(request) {
       }).catch((err) => console.error("syncLeadToAirtable unexpected error", err))
     );
 
+    after(() =>
+      fetch("https://n8n.theautomators.co/webhook/syi-lead", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          lead: {
+            fullName, phone, email, address, suburb, city, province,
+            postalCode, residentialAddress: residentialAddress !== false,
+            preferredCollectionDate, idNumber, idDocumentPath, selfiePath,
+            ageConfirmed: Boolean(ageConfirmed), termsAccepted: Boolean(termsAccepted),
+            privacyAccepted: Boolean(privacyAccepted), bankName, accountType,
+            branchCode, accountNumber, paymentPreference, paymentBonusPct,
+            siteDomain: site.domain, airtableSource: site.airtableSource,
+            couponCode: coupon?.code ?? null, couponBonus: coupon?.bonus ?? null,
+            quoteRef: reference,
+          },
+          items: validatedItems,
+          brand: site.where?.brand || "",
+          site: site.key,
+        }),
+      }).catch((err) => console.error("webhook fallback failed", err))
+    );
+
     return NextResponse.json({ ok: true, id: rows[0].id, reference });
   } catch (err) {
     console.error("POST /api/lead failed", err);
