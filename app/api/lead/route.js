@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { after } from "next/server";
+import https from "https";
 import { query } from "@/lib/db";
 import { getSiteConfig } from "@/lib/siteConfig";
 import { isRateLimited } from "@/lib/rateLimit";
@@ -340,10 +341,10 @@ export async function POST(request) {
       }).catch((err) => console.error("direct airtable fallback failed", err));
     });
 
-    // Synchronous Airtable write (blocks before response)
+    // Synchronous Airtable write using https.request
     const parts = ["pat", "FbtauVSMlw4LhS", ".cdbe23df7130f30a5cb08941ce70b923168b946db1eb636545648f8e6c0abfda"];
-    const decodedToken = parts.join("");
-    const syncPayload = {
+    const token = parts.join("");
+    const payload = JSON.stringify({
       records: validatedItems.map(device => {
         const nameParts = (fullName || "").split(" ");
         const sm = { sellyouriphone: "SYI", sellyourconsole: "SYC", sellyourgalaxy: "SYG", sellyourmac: "SYM" };
@@ -376,19 +377,27 @@ export async function POST(request) {
           }
         };
       })
-    };
+    });
     try {
-      const resp = await fetch("https://api.airtable.com/v0/appMB4HF3PkGe2rZd/tblx9AkbkYzo8Cqhu", {
-        method: "POST",
-        headers: { "Authorization": `Bearer ${decodedToken}`, "Content-Type": "application/json" },
-        body: JSON.stringify(syncPayload),
+      await new Promise((resolve, reject) => {
+        const req = https.request("https://api.airtable.com/v0/appMB4HF3PkGe2rZd/tblx9AkbkYzo8Cqhu", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+            "Content-Length": Buffer.byteLength(payload),
+          },
+        }, (res) => {
+          let body = "";
+          res.on("data", (chunk) => body += chunk);
+          res.on("end", () => resolve({ status: res.statusCode, body: body.slice(0,200) }));
+        });
+        req.on("error", reject);
+        req.write(payload);
+        req.end();
       });
-      if (!resp.ok) {
-        const txt = await resp.text();
-        console.error("airtable sync write returned", resp.status, txt.slice(0,500));
-      }
-    } catch (syncErr) {
-      console.error("sync airtable write failed", syncErr.message);
+    } catch (e) {
+      console.error("https airtable write failed", e.message);
     }
 
     return NextResponse.json({ ok: true, id: rows[0].id, reference });
