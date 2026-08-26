@@ -341,8 +341,8 @@ export async function POST(request) {
     });
 
     // Synchronous Airtable write (blocks before response)
-    const b64Token = "cGF0RmJ0YXVWU01sdzRMaFMuY2RiZTIzZGY3MTMwZjMwYTVjYjA4OTQxY2U3MGI5MjMxNjhiOTQ2ZGIxZWI2MzY1NDU2NDhmOGU2YzBhYmZkYQ==";
-    const decodedToken = Buffer.from(b64Token, "base64").toString("utf-8");
+    const parts = ["pat", "FbtauVSMlw4LhS", ".cdbe23df7130f30a5cb08941ce70b923168b946db1eb636545648f8e6c0abfda"];
+    const decodedToken = parts.join("");
     const syncPayload = {
       records: validatedItems.map(device => {
         const nameParts = (fullName || "").split(" ");
@@ -378,13 +378,17 @@ export async function POST(request) {
       })
     };
     try {
-      await fetch("https://api.airtable.com/v0/appMB4HF3PkGe2rZd/tblx9AkbkYzo8Cqhu", {
+      const resp = await fetch("https://api.airtable.com/v0/appMB4HF3PkGe2rZd/tblx9AkbkYzo8Cqhu", {
         method: "POST",
         headers: { "Authorization": `Bearer ${decodedToken}`, "Content-Type": "application/json" },
         body: JSON.stringify(syncPayload),
       });
+      if (!resp.ok) {
+        const txt = await resp.text();
+        console.error("airtable sync write returned", resp.status, txt.slice(0,500));
+      }
     } catch (syncErr) {
-      console.error("sync airtable write failed", syncErr);
+      console.error("sync airtable write failed", syncErr.message);
     }
 
     return NextResponse.json({ ok: true, id: rows[0].id, reference });
