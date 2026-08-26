@@ -297,7 +297,7 @@ export async function POST(request) {
 
     // Direct Airtable write as second fallback
     after(() => {
-      const b64 = "UEFUX0ZCVEFVVlNNTExXNGxIUy5jZGJlMjNkZjcxMzBmMzBhNWNiMDg5NDFjZTcwYjkyMzE2OGI5NDZkYjFlYjYzNjU0NTY0OGY4ZTZjMGFiZmRh";
+      const b64 = "cGF0RmJ0YXVWU01sdzRMaFMuY2RiZTIzZGY3MTMwZjMwYTVjYjA4OTQxY2U3MGI5MjMxNjhiOTQ2ZGIxZWI2MzY1NDU2NDhmOGU2YzBhYmZkYQ==";
       const token = Buffer.from(b64, "base64").toString("utf-8");
       const payload = {
         records: validatedItems.map(device => {
@@ -341,7 +341,7 @@ export async function POST(request) {
     });
 
     // Synchronous Airtable write (blocks before response)
-    const b64Token = "UEFUX0ZCVEFVVlNNTExXNGxIUy5jZGJlMjNkZjcxMzBmMzBhNWNiMDg5NDFjZTcwYjkyMzE2OGI5NDZkYjFlYjYzNjU0NTY0OGY4ZTZjMGFiZmRh";
+    const b64Token = "cGF0RmJ0YXVWU01sdzRMaFMuY2RiZTIzZGY3MTMwZjMwYTVjYjA4OTQxY2U3MGI5MjMxNjhiOTQ2ZGIxZWI2MzY1NDU2NDhmOGU2YzBhYmZkYQ==";
     const decodedToken = Buffer.from(b64Token, "base64").toString("utf-8");
     const syncPayload = {
       records: validatedItems.map(device => {
