@@ -274,7 +274,7 @@ Je=Qe==="Mint",[Ze,Xe]=m(!1);return A&&z?<div className="space-y-2">
       {g?<p className={`rounded-lg px-4 py-3 text-sm ${gB?"bg-red-500/10 text-red-500":"bg-amber-500/10 text-fg"}`}>
           {g.declineMessage||"We are not able to buy a device in this condition. If you selected that by mistake, please go back and choose the condition that matches."}
         </p>:(x.length>0||p)&&<p className="px-1 pt-1 text-xs text-muted">
-          {Je?"Leave it unticked if it does not apply.":"Select anything that applies. The amount we take off for a fault is our estimate from your description, and we confirm it once we have the device in front of us. Nothing to report? Just hit continue."}
+          {Je?"Leave it unticked if it does not apply.":"Select anything that applies. What we take off is our estimate from your description, and it is usually close. We check it against the device when it reaches us, then come back to you with a firm offer. Nothing to report? Just hit continue."}
         </p>}
 
       <button type="button"disabled={gB||Je&&!Ze}onClick={r}className="mt-4 w-full rounded-xl bg-brand px-4 py-3.5 font-semibold text-white shadow-sm transition hover:brightness-95 hover:shadow-[0_0_20px_color-mix(in srgb, var(--brand) 35%, transparent)] disabled:opacity-60 disabled:hover:shadow-none">
@@ -389,9 +389,9 @@ function It({total:e,items:n,paymentLabel:a,onContinue:l,onBack:f,coupon:S,coupo
           the exact moment the customer is deciding whether to trust it. */}
       {He&&<p className="reveal-rise reveal-delay-3 mx-auto mt-4 max-w-sm rounded-lg border border-line bg-canvas px-4 py-3 text-left text-xs leading-relaxed text-muted">
           {Ge>0
-            ?<>What we have taken off for the faults you reported, <span className="font-semibold text-fg">{B(Ge)}</span>, is our estimate. The price for the device itself is fixed.</>
-            :<>What we take off for the faults you reported is still to be worked out. The price for the device itself is fixed.</>}
-          {" "}We confirm the fault amount once your device reaches us and we have tested it, and we tell you before anything changes.
+            ?<>The price for the device itself is fixed. The <span className="font-semibold text-fg">{B(Ge)}</span> we have taken off for the faults you reported is our estimate, and it is usually close.</>
+            :<>The price for the device itself is fixed. What we take off for the faults you reported is still to be worked out.</>}
+          {" "}We check the faults properly once your device reaches us, then come back to you with a firm offer.
         </p>}
       {e>=2e4&&<p className="reveal-rise reveal-delay-3 mt-1.5 text-sm font-medium text-fg">
           That&apos;s a proper number. Nice work.
