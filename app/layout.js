@@ -43,28 +43,8 @@ const THEMED_SITES = ["sellyourmac"];
  * inline in <head> means the accent is correct on the first frame rather
  * than flipping colour once React hydrates.
  *
- * Deliberately does nothing about light/dark: that resolves from
- * `prefers-color-scheme` in CSS alone, which needs no script and cannot
- * flash.
+ * Also applies the embedding site's theme -- see the notes in the script.
  */
-/**
- * Storefronts allowed to tell this frame which theme to render. A theme
- * message changes nothing but appearance, but an allow-list costs one line
- * and keeps any other embedder from driving the UI.
- */
-const THEME_ORIGINS = [
-  "https://sellyourmac.co.za",
-  "https://www.sellyourmac.co.za",
-  "https://sellyouriphone.co.za",
-  "https://www.sellyouriphone.co.za",
-  "https://sellyourconsole.co.za",
-  "https://www.sellyourconsole.co.za",
-  "https://sellyourgalaxy.co.za",
-  "https://www.sellyourgalaxy.co.za",
-  "https://epicdeals.co.za",
-  "https://www.epicdeals.co.za",
-];
-
 const SITE_ATTR_SCRIPT = `
 (function () {
   var root = document.documentElement;
@@ -86,9 +66,15 @@ const SITE_ATTR_SCRIPT = `
     var t = q.get("theme");
     if (t === "light" || t === "dark") root.setAttribute("data-theme", t);
 
-    var allowed = ${JSON.stringify(THEME_ORIGINS)};
+    // Accept the theme only from the page actually embedding this frame,
+    // rather than from a list of storefront origins. An origin list looked
+    // tighter and was worse: it silently excluded localhost, so the handoff
+    // could not be tested in development, and it would have failed closed
+    // and unnoticed the day a new storefront launched. The signal is purely
+    // cosmetic, and a page that has already chosen to embed us is exactly
+    // who should decide how we look inside it.
     addEventListener("message", function (e) {
-      if (allowed.indexOf(e.origin) === -1) return;
+      if (e.source !== window.parent || window.parent === window) return;
       var d = e.data;
       if (!d || d.type !== "epic-calc-theme") return;
       if (d.theme === "light" || d.theme === "dark") {
