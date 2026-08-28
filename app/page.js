@@ -274,7 +274,7 @@ Je=Qe==="Mint",[Ze,Xe]=m(!1);return A&&z?<div className="space-y-2">
       {g?<p className={`rounded-lg px-4 py-3 text-sm ${gB?"bg-red-500/10 text-red-500":"bg-amber-500/10 text-fg"}`}>
           {g.declineMessage||"We are not able to buy a device in this condition. If you selected that by mistake, please go back and choose the condition that matches."}
         </p>:(x.length>0||p)&&<p className="px-1 pt-1 text-xs text-muted">
-          {Je?"Leave it unticked if it does not apply.":"Select anything that applies, we'll adjust your offer to reflect it. Nothing to report? Just hit continue."}
+          {Je?"Leave it unticked if it does not apply.":"Select anything that applies. We estimate a deduction from what you tell us, then confirm it once the device reaches us and we have tested it. Nothing to report? Just hit continue."}
         </p>}
 
       <button type="button"disabled={gB||Je&&!Ze}onClick={r}className="mt-4 w-full rounded-xl bg-brand px-4 py-3.5 font-semibold text-white shadow-sm transition hover:brightness-95 hover:shadow-[0_0_20px_color-mix(in srgb, var(--brand) 35%, transparent)] disabled:opacity-60 disabled:hover:shadow-none">
@@ -315,7 +315,8 @@ Je=Qe==="Mint",[Ze,Xe]=m(!1);return A&&z?<div className="space-y-2">
  * brand hairline under the figure.
  */
 function It({total:e,items:n,paymentLabel:a,onContinue:l,onBack:f,coupon:S,couponInput:E,onCouponInput:C,couponError:N,couponBusy:k,onApplyCoupon:y,onRemoveCoupon:h}){
-  const[p,i]=m(0),Fe=le(0);
+  const[p,i]=m(0),Fe=le(0),
+  He=n.some(r=>(r.aiProposedFaults?.length>0)||(r.pendingReviewFaults?.length>0)||(r.extras||[]).some(x=>x.value>0||x.pending));
   return _(()=>{
     const r=Fe.current,A=e;
     Fe.current=e;
@@ -374,8 +375,18 @@ function It({total:e,items:n,paymentLabel:a,onContinue:l,onBack:f,coupon:S,coupo
         </p>}
       <div className="reveal-rise reveal-delay-2 mx-auto mt-6 h-px w-12 bg-brand"/>
       <p className="reveal-rise reveal-delay-3 mt-7 text-sm text-muted">
-        Paid via {a}, that&apos;s your total, all in, no surprises.
+        {He?`Paid via ${a}. Everything except the estimates below is fixed.`:`Paid via ${a}, that's your total, all in, no surprises.`}
       </p>
+      {/* "No surprises" is a promise we can only make about the parts we have
+          actually priced. A fault deduction and an accessory value are both
+          estimates until the device is in our hands, and saying so here --
+          at the number, not buried in terms -- is the difference between a
+          revised offer feeling fair and feeling like a bait and switch. */}
+      {He&&<p className="reveal-rise reveal-delay-3 mx-auto mt-3 max-w-sm rounded-lg bg-canvas px-4 py-3 text-xs text-muted">
+          Anything we priced from what you told us is an estimate. We confirm
+          it once your device reaches us and we have tested it, and we will
+          tell you before anything changes.
+        </p>}
       {e>=2e4&&<p className="reveal-rise reveal-delay-3 mt-1.5 text-sm font-medium text-fg">
           That&apos;s a proper number. Nice work.
         </p>}
