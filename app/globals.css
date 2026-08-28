@@ -1,173 +1,314 @@
 @import "tailwindcss";
 
-:root {
---background: #ffffff;
---foreground: #171717;
-/* Pin native form controls (inputs, selects, textareas) to light rendering
-regardless of the visitor's OS/browser dark-mode setting. Without this,
-browsers apply dark-mode UA styling to form controls even on a page
-with an explicit white background, making typed text render white on
-white, invisible until selected. */
-color-scheme: light;
-}
+/*
+ * Shared-calculator token system.
+ *
+ * The calculator is embedded cross-origin in an iframe on every storefront
+ * (sellyourmac, sellyouriphone, sellyourconsole, epicdeals, and
+ * sellyourgalaxy when it lands). CSS variables do not cross an iframe
+ * boundary, so it cannot inherit the host page's theme and has to
+ * reconstruct it. It reconstructs it two ways:
+ *
+ *   1. Accent, from `data-site` on <html> (set in layout.js from the host,
+ *      then corrected before paint by the inline script there from `?site=`,
+ *      which is the authoritative tenant selector).
+ *   2. Light/dark, from `prefers-color-scheme` alone.
+ *
+ * (2) is not a shortcut. Every storefront resolves its own theme purely
+ * from `prefers-color-scheme` too -- sellyourmac and epicdeals are light
+ * with a dark override, sellyouriphone and sellyourconsole are dark with a
+ * light override -- so following the OS preference lands on the same answer
+ * the host page already reached. The known gap: the sites also ship a
+ * manual theme toggle, and a visitor who overrides their OS there will see
+ * the calculator stay on the OS preference, because nothing tells this
+ * frame about it. Closing that needs the parent to postMessage its resolved
+ * theme (CalculatorFrame already messages one way, for resize); deliberately
+ * out of scope for this pass.
+ *
+ * Palettes are copied from the storefronts rather than invented, so the
+ * handoff into the frame is seamless: light from sellyouriphone's light
+ * block, dark from its :root. Do not drift these independently.
+ */
 
 @theme inline {
---color-background: var(--background);
---color-foreground: var(--foreground);
+  /* Mapped through `inline` so the utilities resolve to the live variable
+     rather than a build-time snapshot -- that is what lets one stylesheet
+     serve five tenants and both themes. */
+  --color-brand: var(--brand);
+  --color-brand-600: var(--brand-600);
+  --color-bg: var(--bg);
+  --color-page: var(--page);
+  --color-canvas: var(--canvas);
+  --color-card: var(--card);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-line: var(--border);
+  --color-wash: var(--wash);
+  --color-positive: var(--positive);
+
+  --font-sans: var(--font-satoshi), ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* Light is the base. */
+:root {
+  --brand: #00a2ff;
+  --brand-600: #0077cc;
+  --bg: #ffffff;
+  /* The page ground behind the cards. It needs its own token because the
+     polarity flips: in light the page is the grey and cards are white, in
+     dark the page is the near-black and cards lift off it. Reusing --bg or
+     --canvas for this collapses the card/ground contrast in one theme or
+     the other. */
+  --page: #f4f6fa;
+  --canvas: #f4f6fa;
+  --fg: #0a1628;
+  --muted: #5b6472;
+  --card: #ffffff;
+  --border: #dde1e8;
+  --wash: #e6f5ff;
+  --positive: #047857;
+
+  /* Explicit rather than `light dark`. The native form controls in this app
+     are styled for the resolved theme only, and letting the UA pick the
+     other one is what previously rendered typed text white on white. */
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* On a dark ground, hover has to mean brighter, never darker. */
+    --brand-600: #4dc0ff;
+    --bg: #08090c;
+    --page: #08090c;
+    --canvas: #101218;
+    --fg: #f4f6fa;
+    --muted: #99a1b0;
+    --card: #12141b;
+    --border: #23262f;
+    --wash: #0d1420;
+    --positive: #34d399;
+
+    color-scheme: dark;
+  }
+}
+
+/* Per-tenant accent. Only the accent varies; ground and type are shared.
+   sellyourmac is the one storefront not on the group blue -- its own
+   globals.css ships #3b82f6, synthesized from its pinned reference -- so
+   matching that site means matching that value, not the group's.
+   NOTE: sellyourmac's DESIGN.md still documents #00a2ff, so the two
+   disagree. This follows the shipped code, which is what visitors see. */
+:root[data-site="sellyourmac"] {
+  --brand: #3b82f6;
+  --brand-600: #2f6fd6;
+  --wash: #e3eeff;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-site="sellyourmac"] {
+    --brand-600: #5c93fb;
+    --wash: color-mix(in srgb, var(--brand) 20%, var(--bg));
+  }
+}
+
+/* sellyouriphone, sellyourconsole, epicdeals and sellyourgalaxy all run the
+   group blue, which is the base value, so they need no override block. */
+
+/* Painted here rather than as a utility on <body>: Tailwind's utilities sit
+   in a cascade layer, so an unlayered rule like this one wins over
+   `bg-page` no matter the specificity. One source of truth beats two that
+   silently disagree. */
+html,
+body {
+  background: var(--page);
+  color: var(--fg);
 }
 
 body {
-background: var(--background);
-color: var(--foreground);
-font-family:
--apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: var(--font-sans);
+  font-feature-settings:
+    "rlig" 1,
+    "calt" 1;
 }
 
-/* Offer-reveal animation, the one moment the calculator shows a price, so
-it earns being a little theatrical. */
-@keyframes reveal-confetti-fall {
-0% {
-transform: translateY(-16px) rotate(0deg);
-opacity: 0;
-}
-12% {
-opacity: 1;
-}
-100% {
-transform: translateY(240px) rotate(340deg);
-opacity: 0;
-}
+/* Figures never jitter their column width as digits change. Applied to the
+   counting offer amount, where it matters most. */
+.tabular {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
 }
 
-@keyframes reveal-pop {
-0% {
-transform: scale(0.85);
-opacity: 0;
+/* The offer reveal, the one moment the calculator shows a price.
+ *
+ * It used to be confetti, a pulsing brand ring, an emoji and a bounce-eased
+ * pop on the figure. All four are things the storefront design system
+ * explicitly bans (brand colour is for the primary action, active links and
+ * the counter's pulse dot only, never decorative chrome; and no
+ * bounce/elastic easing anywhere). The moment still deserves to be
+ * authored, so it keeps exactly one gesture -- a rise on the site's own
+ * exponential ease -- plus the count-up, which is the storefronts' live
+ * payout counter pattern rather than a generic celebration.
+ */
+@keyframes reveal-rise {
+  0% {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
-60% {
-transform: scale(1.06);
-opacity: 1;
-}
-100% {
-transform: scale(1);
-opacity: 1;
-}
-}
-
-@keyframes reveal-pulse-ring {
-0% {
-transform: scale(0.92);
-opacity: 0.45;
-}
-100% {
-transform: scale(1.7);
-opacity: 0;
-}
-}
-
-.reveal-confetti-piece {
-animation-name: reveal-confetti-fall;
-animation-timing-function: ease-in;
-animation-fill-mode: forwards;
+.reveal-rise {
+  animation: reveal-rise 0.62s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-.reveal-amount {
-animation: reveal-pop 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+/* Staggered so the label, figure and footnote arrive in reading order
+   rather than as one block. */
+.reveal-delay-1 {
+  animation-delay: 0.06s;
+}
+.reveal-delay-2 {
+  animation-delay: 0.12s;
+}
+.reveal-delay-3 {
+  animation-delay: 0.18s;
 }
 
-.reveal-pulse-ring {
-animation: reveal-pulse-ring 1.8s ease-out infinite;
+/* A coupon adds money to a total already on screen. The figure counts from
+   where it was rather than restarting, and this marks the gain arriving
+   beside it. */
+@keyframes gain-in {
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.gain-in {
+  animation: gain-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 /* Step transition, a soft fade + rise whenever the active step changes,
 keeps the flow feeling alive without being distracting. */
 @keyframes step-in {
-0% {
-opacity: 0;
-transform: translateY(6px);
-}
-100% {
-opacity: 1;
-transform: translateY(0);
-}
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 .step-enter {
-animation: step-in 0.28s ease-out both;
+  animation: step-in 0.28s ease-out both;
 }
 
-/* Checkbox tick pop, a little satisfying "click" feeling on selection. */
+/* Checkbox tick pop, a little satisfying "click" feeling on selection.
+   Was a 1.15 overshoot on bounce easing; the storefront system bans
+   bounce/elastic outright, so the scale now settles rather than springs.
+   Slightly faster to compensate -- an overshoot reads as "responsive"
+   mostly because it is still moving, and without one the same duration
+   feels sluggish. */
 @keyframes check-pop {
-0% {
-transform: scale(0);
-}
-60% {
-transform: scale(1.15);
-}
-100% {
-transform: scale(1);
-}
+  0% {
+    transform: scale(0);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 .check-pop {
-animation: check-pop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: check-pop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Shimmering loading skeleton, brand-tinted instead of plain grey. */
+/* Shimmering loading skeleton, brand-tinted instead of plain grey. Built
+   from tokens so it does not glow white on the dark storefronts. */
 @keyframes skeleton-shimmer {
-0% {
-background-position: -200% 0;
-}
-100% {
-background-position: 200% 0;
-}
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
 }
 .skeleton-shimmer {
-background: linear-gradient(90deg, #f4f4f5 25%, #e6f5ff 37%, #f4f4f5 63%);
-background-size: 400% 100%;
-animation: skeleton-shimmer 1.4s ease-in-out infinite;
+  background: linear-gradient(
+    90deg,
+    var(--canvas) 25%,
+    var(--wash) 37%,
+    var(--canvas) 63%
+  );
+  background-size: 400% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
 }
 
 /* Cart line entrance, each new item slides in rather than popping in cold. */
 @keyframes item-in {
-0% {
-opacity: 0;
-transform: translateX(-6px);
-}
-100% {
-opacity: 1;
-transform: translateX(0);
-}
+  0% {
+    opacity: 0;
+    transform: translateX(-6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 .item-in {
-animation: item-in 0.3s ease-out both;
+  animation: item-in 0.3s ease-out both;
 }
 
 /* Easter egg tooltip, a small pop for the curious few who find it. */
 @keyframes egg-pop {
-0% {
-opacity: 0;
-transform: scale(0.9) translateY(2px);
-}
-100% {
-opacity: 1;
-transform: scale(1) translateY(0);
-}
+  0% {
+    opacity: 0;
+    transform: scale(0.9) translateY(2px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 .egg-pop {
-animation: egg-pop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  /* Its keyframes never overshot, so only the easing carried the bounce.
+     Same exponential ease-out as every other motion here now. */
+  animation: egg-pop 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 /* Calculating-step message swap, each message eases in over the last so
 the sequence feels alive rather than just text flicking. */
 @keyframes msg-in {
-0% {
-opacity: 0;
-transform: translateY(4px);
-}
-100% {
-opacity: 1;
-transform: translateY(0);
-}
+  0% {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 .msg-in {
-animation: msg-in 0.3s ease-out both;
+  animation: msg-in 0.3s ease-out both;
+}
+
+/* Anyone who has asked for less motion gets the layout and the count-up's
+   final value, without the movement. */
+@media (prefers-reduced-motion: reduce) {
+  .reveal-rise,
+  .gain-in,
+  .step-enter,
+  .check-pop,
+  .item-in,
+  .msg-in,
+  .egg-pop {
+    animation: none !important;
+  }
+  .skeleton-shimmer {
+    animation: none;
+  }
 }
