@@ -47,15 +47,56 @@ const THEMED_SITES = ["sellyourmac"];
  * `prefers-color-scheme` in CSS alone, which needs no script and cannot
  * flash.
  */
+/**
+ * Storefronts allowed to tell this frame which theme to render. A theme
+ * message changes nothing but appearance, but an allow-list costs one line
+ * and keeps any other embedder from driving the UI.
+ */
+const THEME_ORIGINS = [
+  "https://sellyourmac.co.za",
+  "https://www.sellyourmac.co.za",
+  "https://sellyouriphone.co.za",
+  "https://www.sellyouriphone.co.za",
+  "https://sellyourconsole.co.za",
+  "https://www.sellyourconsole.co.za",
+  "https://sellyourgalaxy.co.za",
+  "https://www.sellyourgalaxy.co.za",
+  "https://epicdeals.co.za",
+  "https://www.epicdeals.co.za",
+];
+
 const SITE_ATTR_SCRIPT = `
 (function () {
+  var root = document.documentElement;
   try {
-    var k = new URLSearchParams(location.search).get("site");
+    var q = new URLSearchParams(location.search);
+    var k = q.get("site");
     if (k && ${JSON.stringify(THEMED_SITES)}.indexOf(k) !== -1) {
-      document.documentElement.setAttribute("data-site", k);
+      root.setAttribute("data-site", k);
     } else if (k) {
-      document.documentElement.removeAttribute("data-site");
+      root.removeAttribute("data-site");
     }
+
+    // The embedding page resolves its own theme from a toggle this frame
+    // cannot see, so it passes the answer twice: once in the URL, which
+    // lands before first paint and avoids a flash, and again by
+    // postMessage whenever the visitor flips it. Absent both, the CSS
+    // falls back to prefers-color-scheme, which is right for anyone who
+    // has never touched a toggle.
+    var t = q.get("theme");
+    if (t === "light" || t === "dark") root.setAttribute("data-theme", t);
+
+    var allowed = ${JSON.stringify(THEME_ORIGINS)};
+    addEventListener("message", function (e) {
+      if (allowed.indexOf(e.origin) === -1) return;
+      var d = e.data;
+      if (!d || d.type !== "epic-calc-theme") return;
+      if (d.theme === "light" || d.theme === "dark") {
+        root.setAttribute("data-theme", d.theme);
+      } else {
+        root.removeAttribute("data-theme");
+      }
+    });
   } catch (e) {}
 })();
 `;

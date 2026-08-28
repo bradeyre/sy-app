@@ -75,8 +75,14 @@
   color-scheme: light;
 }
 
+/* Two ways in. `prefers-color-scheme` covers a visitor who has not
+   overridden anything, which is most of them. `data-theme` is set from the
+   embedding storefront (see layout.js) for the visitor who HAS used that
+   site's theme toggle -- the frame cannot see the toggle, so the parent
+   tells it. The `:not([data-theme="light"])` guard lets an explicit light
+   choice win even while the OS prefers dark. */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     /* On a dark ground, hover has to mean brighter, never darker. */
     --brand-600: #4dc0ff;
     --bg: #08090c;
@@ -93,6 +99,22 @@
   }
 }
 
+:root[data-theme="dark"] {
+    /* On a dark ground, hover has to mean brighter, never darker. */
+    --brand-600: #4dc0ff;
+    --bg: #08090c;
+    --page: #08090c;
+    --canvas: #101218;
+    --fg: #f4f6fa;
+    --muted: #99a1b0;
+    --card: #12141b;
+    --border: #23262f;
+    --wash: #0d1420;
+    --positive: #34d399;
+
+    color-scheme: dark;
+}
+
 /* Per-tenant accent. Only the accent varies; ground and type are shared.
    sellyourmac is the one storefront not on the group blue -- its own
    globals.css ships #3b82f6, synthesized from its pinned reference -- so
@@ -106,10 +128,15 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :root[data-site="sellyourmac"] {
+  :root[data-site="sellyourmac"]:not([data-theme="light"]) {
     --brand-600: #5c93fb;
     --wash: color-mix(in srgb, var(--brand) 20%, var(--bg));
   }
+}
+
+:root[data-site="sellyourmac"][data-theme="dark"] {
+    --brand-600: #5c93fb;
+    --wash: color-mix(in srgb, var(--brand) 20%, var(--bg));
 }
 
 /* sellyouriphone, sellyourconsole, epicdeals and sellyourgalaxy all run the
