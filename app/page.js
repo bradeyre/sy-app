@@ -392,7 +392,7 @@ function It({total:e,items:n,paymentLabel:a,onContinue:l,onBack:f,coupon:S,coupo
           priced from what you told us is an estimate", which was true and
           useless: it read as though the whole offer might be a guess, at
           the exact moment the customer is deciding whether to trust it. */}
-      {He&&<p className="reveal-rise reveal-delay-3 mx-auto mt-4 max-w-sm rounded-lg border border-line bg-canvas px-4 py-3 text-left text-xs leading-relaxed text-muted">
+      {He&&<p className="reveal-rise reveal-delay-3 mx-auto mt-4 max-w-sm rounded-lg border border-line bg-canvas px-4 py-3.5 text-left text-sm leading-relaxed text-muted">
           {Ge>0
             ?<>The price for the device itself is fixed. The <span className="font-semibold text-fg">{B(Ge)}</span> we have taken off for the faults you reported is our estimate, and it is usually close.</>
             :<>The price for the device itself is fixed. What we take off for the faults you reported is still to be worked out.</>}
