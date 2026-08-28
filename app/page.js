@@ -54,7 +54,7 @@ function U(t,o){const mk=(T?.model||"").toLowerCase();return(i?.conditionFaults?
 
         {e===s.QUOTE&&<Dt model={T}capacities={j}notice={qNote}activeCapacity={w}onChooseCapacity={R}onChooseCondition={ot}onBack={()=>n(s.MODEL)}/>}
 
-        {e===s.FAULTS&&<Ft conditionRaw={P?.conditionRaw}faultRules={U(g?.type,P?.conditionRaw)}selectedFaultKeys={Se}onToggleFault={t=>H(o=>o.includes(t)?o.filter(d=>d!==t):[...o,t])}batteryPctInput={J}onBatteryPctChange={Z}showFreeText={q(g?.type,P?.conditionRaw)}faultDescription={Ee}onFaultDescriptionChange={X}onContinue={at}onBack={()=>n(s.QUOTE)}/>}
+        {e===s.FAULTS&&<Ft brand={bnd}conditionRaw={P?.conditionRaw}faultRules={U(g?.type,P?.conditionRaw)}selectedFaultKeys={Se}onToggleFault={t=>H(o=>o.includes(t)?o.filter(d=>d!==t):[...o,t])}batteryPctInput={J}onBatteryPctChange={Z}showFreeText={q(g?.type,P?.conditionRaw)}faultDescription={Ee}onFaultDescriptionChange={X}onContinue={at}onBack={()=>n(s.QUOTE)}/>}
 
         {e===s.ACCESSORIES&&<Ot config={g.accessoryOptions}selected={ze}onToggle={t=>G(o=>{if(t==="__none__")return["__none__"];const d=o.filter(k=>k!=="__none__");return d.includes(t)?d.filter(k=>k!==t):[...d,t]})}onContinue={()=>{if(g.extraAccessoryOptions){we([]),ve(""),n(s.EXTRAS)}else oe(P,ze,Ue)}}onBack={()=>n(st())}/>}
 
@@ -216,7 +216,7 @@ function U(t,o){const mk=(T?.model||"").toLowerCase();return(i?.conditionFaults?
       <button type="button"onClick={u}className="mt-1 w-full rounded-xl border border-line bg-card px-4 py-3 text-sm font-medium text-muted shadow-sm transition hover:bg-canvas">
         Skip, no extras
       </button>
-    </div>}function Ft({conditionRaw:Qe,faultRules:e,selectedFaultKeys:n,onToggleFault:a,batteryPctInput:l,onBatteryPctChange:f,showFreeText:p,faultDescription:i,onFaultDescriptionChange:u,onContinue:r,onBack:b}){const A=e.find(v=>v.type==="battery_threshold"),x=e.filter(v=>v.type==="checkbox"),g=x.find(v=>v.decline&&n.includes(v.key)),gB=!!g&&g.blocks!==!1,Un=n.length>0||!!(p&&i.trim()),[z,T]=m(!!A),
+    </div>}function Ft({brand:et,conditionRaw:Qe,faultRules:e,selectedFaultKeys:n,onToggleFault:a,batteryPctInput:l,onBatteryPctChange:f,showFreeText:p,faultDescription:i,onFaultDescriptionChange:u,onContinue:r,onBack:b}){const A=e.find(v=>v.type==="battery_threshold"),x=e.filter(v=>v.type==="checkbox"),g=x.find(v=>v.decline&&n.includes(v.key)),gB=!!g&&g.blocks!==!1,Un=n.length>0||!!(p&&i.trim()),[z,T]=m(!!A),
 /* Excellent pays a premium for a device that is genuinely nearly new, and
    the grade itself already asserts "no faults" -- so instead of a fault
    list it takes an explicit confirmation, and says out loud that most used
@@ -227,7 +227,12 @@ Je=Qe==="Mint",[Ze,Xe]=m(!1);return A&&z?<div className="space-y-2">
         <div className="rounded-xl border border-line bg-card px-4 py-3.5 shadow-sm">
           <label className="mb-1 block text-sm font-medium text-fg">Battery health %</label>
           <p className="mb-2 text-xs text-muted">
-            Check Settings → Battery → Battery Health on the device. Leave blank if you&apos;re not sure.
+            {et==="Samsung"
+              ?"Check Settings, Battery and device care, then Diagnostics, or the Samsung Members app."
+              :et==="Apple"
+                ?"Check Settings → Battery → Battery Health on the device."
+                :"Check your phone's battery health in its settings."}{" "}
+            Leave blank if you&apos;re not sure.
           </p>
           <input type="number"inputMode="numeric"min="0"max="100"value={l}onChange={v=>f(v.target.value)}placeholder="e.g. 87"className="w-full rounded-lg border border-line bg-card px-3 py-2 text-sm text-fg focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"/>
         </div>
