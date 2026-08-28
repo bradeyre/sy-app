@@ -45,7 +45,7 @@ function U(t,o){const mk=(T?.model||"").toLowerCase();return(i?.conditionFaults?
 
       {D.length>0&&e!==s.DONE&&e!==s.REVEAL&&e!==s.CALCULATING&&<Tt items={D}onRemove={it}/>}
 
-      {De&&<p className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{De}</p>}
+      {De&&<p className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-base text-red-700">{De}</p>}
 
       <div key={e}className="step-enter">
         {e===s.CATEGORY&&<Et categories={a}loading={f}onChoose={et}hasItems={D.length>0}onProceed={()=>n(s.PAYMENT)}/>}
@@ -72,24 +72,24 @@ function U(t,o){const mk=(T?.model||"").toLowerCase();return(i?.conditionFaults?
       </div>
     </div>}function Nt(){const[e,n]=m(0),[a,l]=m(!1),f=le(null);function p(){n(i=>i+1),f.current&&clearTimeout(f.current),f.current=setTimeout(()=>n(0),1500)}return _(()=>{if(e<5)return;l(!0),n(0);const i=setTimeout(()=>l(!1),2800);return()=>clearTimeout(i)},[e]),<div className="relative mb-6">
       <button type="button"onClick={p}aria-label="Epic Deals"className="mb-3 h-1 w-12 origin-left rounded-full bg-brand transition-transform hover:scale-x-125"/>
-      {a&&<p className="egg-pop absolute left-16 top-0 max-w-[220px] text-xs font-medium text-brand">
+      {a&&<p className="egg-pop absolute left-16 top-0 max-w-[220px] text-sm font-medium text-brand">
           🎉 You found the secret. There&apos;s no bonus, but we like your curiosity.
         </p>}
       <h1 className="text-2xl font-bold text-fg">Get an instant offer</h1>
-      <p className="mt-1 text-sm text-muted">
+      <p className="mt-1 text-base text-muted">
         Pick what you&apos;re selling below, no waiting, no haggling, no obligation to sell.
       </p>
     </div>}function Ct({step:e}){const n=ie.indexOf($e[e]||e);return<div className="mb-5">
       <div className="flex items-center gap-1.5">
         {ie.map((a,l)=><div key={a}className={`h-1.5 flex-1 rounded-full transition-colors ${l<=n?"bg-brand":"bg-line"}`}/>)}
       </div>
-      <p className="mt-1.5 text-xs font-medium text-muted">
+      <p className="mt-1.5 text-sm font-medium text-muted">
         Step {n+1} of {ie.length}, {ht[$e[e]||e]}
       </p>
     </div>}function Tt({items:e,onRemove:n}){return<div className="mb-6 overflow-hidden rounded-2xl border border-line bg-card shadow-sm">
       <div className="flex items-center justify-between px-4 py-3">
-        <p className="text-sm font-semibold text-fg">Your items</p>
-        <span className="rounded-full bg-brand/10 px-2.5 py-1 text-xs font-semibold text-brand">
+        <p className="text-base font-semibold text-fg">Your items</p>
+        <span className="rounded-full bg-brand/10 px-2.5 py-1 text-sm font-semibold text-brand">
           {e.length} item{e.length===1?"":"s"}
         </span>
       </div>
@@ -99,20 +99,20 @@ function U(t,o){const mk=(T?.model||"").toLowerCase();return(i?.conditionFaults?
               <span className="h-4 w-4">{je[a.categoryType]}</span>
             </span>
             <span className="min-w-0 flex-1">
-              <span className="block truncate text-sm font-medium text-fg">
+              <span className="block truncate text-base font-medium text-fg">
                 {a.model} {a.capacity!=="N/A"?`(${a.capacity})`:""}
               </span>
-              <span className="block truncate text-xs text-muted">
+              <span className="block text-sm text-muted">
                 {a.condition}
                 {a.accessories?.length>0&&` \xB7 ${a.accessories.map(l=>l.label).join(", ")}`}
               </span>
-              {(a.appliedFaults?.length>0||a.aiProposedFaults?.length>0||a.pendingReviewFaults?.length>0)&&<span className="block text-xs text-red-500">
+              {(a.appliedFaults?.length>0||a.aiProposedFaults?.length>0||a.pendingReviewFaults?.length>0)&&<span className="block text-sm text-red-500">
                   {[...(a.appliedFaults||[]).map(l=>l.label),...(a.aiProposedFaults||[]).map(l=>`${l.label} (estimate, pending review)`),...(a.pendingReviewFaults||[]).map(l=>`${l.label} (pending review)`)].join(", ")}
                 </span>}
-              {a.declined&&<span className="mt-1 block rounded-md bg-red-50 px-2 py-1 text-xs font-semibold text-red-700">
+              {a.declined&&<span className="mt-1 block rounded-md bg-red-50 px-2 py-1 text-sm font-semibold text-red-700">
                   Sorry, we can&apos;t buy this item in its current condition. Please remove it to continue.
                 </span>}
-              {a.extras?.length>0&&<span className="block text-xs text-positive">
+              {a.extras?.length>0&&<span className="block text-sm text-positive">
                   {a.extras.map(l=>l.pending?`${l.label} (estimating...)`:`${l.label} (+${B(l.value)})`).join(", ")}
                 </span>}
             </span>
@@ -124,7 +124,7 @@ function U(t,o){const mk=(T?.model||"").toLowerCase();return(i?.conditionFaults?
             </button>
           </li>)}
       </ul>
-      <p className="border-t border-line px-4 py-2.5 text-xs text-muted">
+      <p className="border-t border-line px-4 py-2.5 text-sm text-muted">
         {e.length>=4?"Officially a clear-out. ":""}
         Your offer will be calculated once you&apos;ve picked a payment option.
       </p>
@@ -136,18 +136,18 @@ function U(t,o){const mk=(T?.model||"").toLowerCase();return(i?.conditionFaults?
         {i&&<span className="h-2.5 w-2.5 shrink-0 rounded-full"style={{backgroundColor:i}}/>}
         <span className="font-medium text-fg">{n}</span>
       </span>
-      {a&&<span className="text-sm text-muted">{a}</span>}
+      {a&&<span className="text-base text-muted">{a}</span>}
     </button>}function St({onClick:e,label:n,explainer:a,dot:l}){return<button type="button"onClick={e}className="group flex w-full items-start gap-3 rounded-xl border border-line bg-card px-4 py-3.5 text-left shadow-sm transition hover:border-brand hover:shadow-md active:scale-[0.99]">
       {l&&<span className="mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full"style={{backgroundColor:l}}/>}
       <span className="min-w-0">
         <span className="block font-medium text-fg">{n}</span>
-        {a&&<span className="mt-0.5 block text-xs text-muted">{a}</span>}
+        {a&&<span className="mt-0.5 block text-sm text-muted">{a}</span>}
       </span>
-    </button>}function Et({categories:e,loading:n,onChoose:a,hasItems:l,onProceed:f}){return n?<Ce rows={4}/>:!e||e.length===0?<p className="text-sm text-muted">No products available right now, please check back soon.</p>:<div className="space-y-2">
+    </button>}function Et({categories:e,loading:n,onChoose:a,hasItems:l,onProceed:f}){return n?<Ce rows={4}/>:!e||e.length===0?<p className="text-base text-muted">No products available right now, please check back soon.</p>:<div className="space-y-2">
       {l&&<button type="button"onClick={f}className="mb-4 w-full rounded-xl bg-brand px-4 py-3.5 font-semibold text-white shadow-sm transition hover:brightness-95 hover:shadow-[0_0_20px_color-mix(in srgb, var(--brand) 35%, transparent)]">
           Continue to get your offer
         </button>}
-      <p className="mb-2 text-sm font-medium text-muted">
+      <p className="mb-2 text-base font-medium text-muted">
         {l?"Or add another item":"What would you like to sell?"}
       </p>
       {e.map(p=><Ne key={p.type}onClick={()=>a(p)}icon={je[p.type]}iconBg={Q[p.type]?.bg}iconText={Q[p.type]?.text}>
@@ -155,44 +155,44 @@ function U(t,o){const mk=(T?.model||"").toLowerCase();return(i?.conditionFaults?
         </Ne>)}
     </div>}function At({category:e,models:n,loading:a,search:l,onSearch:f,onChoose:p,onBack:i}){const u=n?.filter(r=>r.label.toLowerCase().includes(l.trim().toLowerCase()));return<div className="space-y-2">
       <I onClick={i}label="Back"/>
-      <p className="mb-2 text-sm font-medium text-muted">Which {e.label} do you have?</p>
-      {!a&&n&&n.length>8&&<input type="text"autoFocus value={l}onChange={r=>f(r.target.value)}placeholder={`Search ${n.length} ${e.label} models…`}className="mb-2 w-full rounded-xl border border-line bg-card px-4 py-3 text-sm text-fg focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"/>}
+      <p className="mb-2 text-base font-medium text-muted">Which {e.label} do you have?</p>
+      {!a&&n&&n.length>8&&<input type="text"autoFocus value={l}onChange={r=>f(r.target.value)}placeholder={`Search ${n.length} ${e.label} models…`}className="mb-2 w-full rounded-xl border border-line bg-card px-4 py-3 text-base text-fg focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"/>}
       {a&&<Ce rows={5}/>}
       {!a&&u?.map(r=><Ne key={r.model}onClick={()=>p(r)}>
             {r.label}
           </Ne>)}
-      {!a&&u&&u.length===0&&<p className="px-1 py-4 text-sm text-muted">
+      {!a&&u&&u.length===0&&<p className="px-1 py-4 text-base text-muted">
           No match for &quot;{l}&quot;, try a shorter search, or go back and check the category.
         </p>}
     </div>}function Dt({model:e,capacities:n,notice:no,activeCapacity:a,onChooseCapacity:l,onChooseCondition:f,onBack:p}){const i=!a&&n?.length>1;return<div className="space-y-2">
       <I onClick={p}label="Back"/>
       {no&&<div className="rounded-xl border border-brand/30 bg-brand/5 p-4 mb-1">
-          <p className="text-sm font-semibold text-fg mb-1">Sealed and unopened only</p>
-          <p className="text-sm text-muted leading-relaxed">{no}</p>
+          <p className="text-base font-semibold text-fg mb-1">Sealed and unopened only</p>
+          <p className="text-base text-muted leading-relaxed">{no}</p>
         </div>}
-      {no&&n?.length===0&&<p className="text-sm text-muted">We are not buying this model at the moment.</p>}
+      {no&&n?.length===0&&<p className="text-base text-muted">We are not buying this model at the moment.</p>}
       {i&&<>
-          <p className="mb-2 text-sm font-medium text-muted">{e.label}, storage size?</p>
+          <p className="mb-2 text-base font-medium text-muted">{e.label}, storage size?</p>
           {n.map(u=><Ne key={u.capacity}onClick={()=>l(u)}>
               {u.capacity}
             </Ne>)}
         </>}
       {a&&<>
-          <p className="mb-2 text-sm font-medium text-muted">
+          <p className="mb-2 text-base font-medium text-muted">
             {e.label} {a.capacity!=="N/A"?`(${a.capacity})`:""}, what condition?
           </p>
           {a.conditions.map(u=><St key={u.condition}onClick={()=>f(u)}dot={xt[u.condition]||"#9ca3af"}label={u.conditionLabel}explainer={gt[u.condition]}/>)}
         </>}
     </div>}function Ot({config:e,selected:n,onToggle:a,onContinue:l,onBack:f}){const p=n.includes("__none__"),i=n.length>0;return<div className="space-y-2">
       <I onClick={f}label="Back"/>
-      <p className="mb-2 text-sm font-medium text-muted">{e.groupLabel}</p>
+      <p className="mb-2 text-base font-medium text-muted">{e.groupLabel}</p>
       <K checked={p}onClick={()=>a("__none__")}>
         None
       </K>
       {e.options.map(u=><K key={u.key}checked={!p&&n.includes(u.key)}onClick={()=>a(u.key)}>
           {u.label}
         </K>)}
-      <p className="px-1 pt-1 text-xs text-muted">
+      <p className="px-1 pt-1 text-sm text-muted">
         Select all the original, undamaged accessories you&apos;d like to include, in good cosmetic and fully
         working condition.
       </p>
@@ -201,19 +201,19 @@ function U(t,o){const mk=(T?.model||"").toLowerCase();return(i?.conditionFaults?
       </button>
     </div>}function Xt({config:e,selected:n,onToggle:a,freeText:l,onFreeTextChange:f,onContinue:p,onBack:i,onSkip:u}){const r=n.length>0||l.trim().length>0;return<div className="space-y-2">
       <I onClick={i}label="Back"/>
-      <p className="mb-2 text-sm font-medium text-muted">{e.groupLabel}</p>
-      <p className="mb-3 text-xs text-muted">Got extra accessories to include? We&apos;ll estimate what we can offer for each one and add it to your total. Accessory values are estimates. We confirm them once your device arrives and we&apos;ve tested everything.</p>
+      <p className="mb-2 text-base font-medium text-muted">{e.groupLabel}</p>
+      <p className="mb-3 text-sm text-muted">Got extra accessories to include? We&apos;ll estimate what we can offer for each one and add it to your total. Accessory values are estimates. We confirm them once your device arrives and we&apos;ve tested everything.</p>
       {e.options.map(b=><K key={b.key}checked={n.includes(b.key)}onClick={()=>a(b.key)}>
           {b.label}
         </K>)}
       <div className="mt-3">
-        <label className="mb-1 block text-xs font-medium text-muted">Anything else?</label>
-        <textarea value={l}onChange={b=>f(b.target.value)}placeholder="e.g. 3 extra games, a VR headset..."maxLength={500}rows={2}className="w-full rounded-xl border border-line bg-card px-4 py-3 text-sm text-fg placeholder-muted focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"/>
+        <label className="mb-1 block text-sm font-medium text-muted">Anything else?</label>
+        <textarea value={l}onChange={b=>f(b.target.value)}placeholder="e.g. 3 extra games, a VR headset..."maxLength={500}rows={2}className="w-full rounded-xl border border-line bg-card px-4 py-3 text-base text-fg placeholder-muted focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"/>
       </div>
       <button type="button"onClick={p}disabled={!r}className="mt-4 w-full rounded-xl bg-brand px-4 py-3.5 font-semibold text-white shadow-sm transition hover:brightness-95 hover:shadow-[0_0_20px_color-mix(in srgb, var(--brand) 35%, transparent)] disabled:opacity-60 disabled:hover:shadow-none">
         Continue with extras
       </button>
-      <button type="button"onClick={u}className="mt-1 w-full rounded-xl border border-line bg-card px-4 py-3 text-sm font-medium text-muted shadow-sm transition hover:bg-canvas">
+      <button type="button"onClick={u}className="mt-1 w-full rounded-xl border border-line bg-card px-4 py-3 text-base font-medium text-muted shadow-sm transition hover:bg-canvas">
         Skip, no extras
       </button>
     </div>}function Ft({brand:et,conditionRaw:Qe,faultRules:e,selectedFaultKeys:n,onToggleFault:a,batteryPctInput:l,onBatteryPctChange:f,showFreeText:p,faultDescription:i,onFaultDescriptionChange:u,onContinue:r,onBack:b}){const A=e.find(v=>v.type==="battery_threshold"),x=e.filter(v=>v.type==="checkbox"),g=x.find(v=>v.decline&&n.includes(v.key)),gB=!!g&&g.blocks!==!1,Un=n.length>0||!!(p&&i.trim()),[z,T]=m(!!A),
@@ -223,10 +223,10 @@ function U(t,o){const mk=(T?.model||"").toLowerCase();return(i?.conditionFaults?
    phones are Good. Cheap to tick, and it puts the claim on record. */
 Je=Qe==="Mint",[Ze,Xe]=m(!1);return A&&z?<div className="space-y-2">
         <I onClick={b}label="Back"/>
-        <p className="mb-2 text-sm font-medium text-muted">What&apos;s the battery health?</p>
+        <p className="mb-2 text-base font-medium text-muted">What&apos;s the battery health?</p>
         <div className="rounded-xl border border-line bg-card px-4 py-3.5 shadow-sm">
-          <label className="mb-1 block text-sm font-medium text-fg">Battery health %</label>
-          <p className="mb-2 text-xs text-muted">
+          <label className="mb-1 block text-base font-medium text-fg">Battery health %</label>
+          <p className="mb-2 text-sm text-muted">
             {et==="Samsung"
               ?"Check Settings, Battery and device care, then Diagnostics, or the Samsung Members app."
               :et==="Apple"
@@ -234,9 +234,9 @@ Je=Qe==="Mint",[Ze,Xe]=m(!1);return A&&z?<div className="space-y-2">
                 :"Check your phone's battery health in its settings."}{" "}
             Leave blank if you&apos;re not sure.
           </p>
-          <input type="number"inputMode="numeric"min="0"max="100"value={l}onChange={v=>f(v.target.value)}placeholder="e.g. 87"className="w-full rounded-lg border border-line bg-card px-3 py-2 text-sm text-fg focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"/>
+          <input type="number"inputMode="numeric"min="0"max="100"value={l}onChange={v=>f(v.target.value)}placeholder="e.g. 87"className="w-full rounded-lg border border-line bg-card px-3 py-2 text-base text-fg focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"/>
         </div>
-        <p className="px-1 pt-1 text-xs text-muted">Not sure, or it&apos;s fine? Just hit continue.</p>
+        <p className="px-1 pt-1 text-sm text-muted">Not sure, or it&apos;s fine? Just hit continue.</p>
         <button type="button"onClick={()=>{x.length>0||p||Je?T(!1):r()}}className="mt-4 w-full rounded-xl bg-brand px-4 py-3.5 font-semibold text-white shadow-sm transition hover:brightness-95 hover:shadow-[0_0_20px_color-mix(in srgb, var(--brand) 35%, transparent)]">
           Continue
         </button>
@@ -251,15 +251,15 @@ Je=Qe==="Mint",[Ze,Xe]=m(!1);return A&&z?<div className="space-y-2">
         Nothing below applies, it works perfectly
       </button>}
       {Je&&<div className="mb-3">
-        <p className="mb-2 text-sm font-medium text-muted">Just to confirm</p>
+        <p className="mb-2 text-base font-medium text-muted">Just to confirm</p>
         <K checked={Ze}onClick={()=>Xe(v=>!v)}>
           It looks new, no marks or signs of use, and everything works perfectly
         </K>
-        <p className="px-1 pt-2 text-xs text-muted">
+        <p className="px-1 pt-2 text-sm text-muted">
           Excellent is for a nearly new device. Most used ones are Good, so if yours has any wear at all, please go back and choose Good, it is still a strong price.
         </p>
       </div>}
-      {(x.length>0||p)&&<p className="mb-2 text-sm font-medium text-muted">
+      {(x.length>0||p)&&<p className="mb-2 text-base font-medium text-muted">
         {Je?"Anything that would stop us buying it?":A?"Any other faults we should know about?":"Any faults we should know about?"}
       </p>}
 
@@ -268,17 +268,17 @@ Je=Qe==="Mint",[Ze,Xe]=m(!1);return A&&z?<div className="space-y-2">
         </K>)}
 
       {p&&<div className="rounded-xl border border-line bg-card px-4 py-3.5 shadow-sm">
-          <label className="mb-1 block text-sm font-medium text-fg">Describe what&apos;s wrong (optional)</label>
-          <textarea value={i}onChange={v=>u(v.target.value)}rows={3}maxLength={500}placeholder="e.g. won&apos;t power on, three dead keys, hinge is loose…"className="w-full rounded-lg border border-line bg-card px-3 py-2 text-sm text-fg focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"/>
-          <p className="mt-1 text-xs text-muted">
+          <label className="mb-1 block text-base font-medium text-fg">Describe what&apos;s wrong (optional)</label>
+          <textarea value={i}onChange={v=>u(v.target.value)}rows={3}maxLength={500}placeholder="e.g. won&apos;t power on, three dead keys, hinge is loose…"className="w-full rounded-lg border border-line bg-card px-3 py-2 text-base text-fg focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"/>
+          <p className="mt-1 text-sm text-muted">
             The more detail you give us, the better we can price it, our system reviews this to propose a fair
             deduction.
           </p>
         </div>}
 
-      {g?<p className={`rounded-lg px-4 py-3 text-sm ${gB?"bg-red-500/10 text-red-500":"bg-amber-500/10 text-fg"}`}>
+      {g?<p className={`rounded-lg px-4 py-3 text-base ${gB?"bg-red-500/10 text-red-500":"bg-amber-500/10 text-fg"}`}>
           {g.declineMessage||"We are not able to buy a device in this condition. If you selected that by mistake, please go back and choose the condition that matches."}
-        </p>:(x.length>0||p)&&<p className="px-1 pt-1 text-xs text-muted">
+        </p>:(x.length>0||p)&&<p className="px-1 pt-1 text-sm text-muted">
           {Je?"Leave it unticked if it does not apply.":"Select anything that applies. What we take off is our estimate from your description, and it is usually close. We check it against the device when it reaches us, then come back to you with a firm offer. Nothing to report? Just hit continue."}
         </p>}
 
@@ -294,17 +294,17 @@ Je=Qe==="Mint",[Ze,Xe]=m(!1);return A&&z?<div className="space-y-2">
       <span className="font-medium text-fg">{a}</span>
     </button>}function Pt({options:e,selected:n,onSelect:a,onContinue:l,onBack:f}){if(e.length===0)return<Ce rows={3}/>;const p=e.find(i=>i.key===n)||e[0];return<div className="space-y-2">
       <I onClick={f}label="Back"/>
-      <p className="mb-2 text-sm font-medium text-muted">How would you like to be paid?</p>
+      <p className="mb-2 text-base font-medium text-muted">How would you like to be paid?</p>
       {e.map(i=><K key={i.key}checked={i.key===n}onClick={()=>a(i.key)}>
           {i.label}
         </K>)}
-      <p className="px-1 pt-1 text-xs text-muted">{p.helper}</p>
+      <p className="px-1 pt-1 text-sm text-muted">{p.helper}</p>
       <button type="button"onClick={l}className="mt-4 w-full rounded-xl bg-brand px-4 py-3.5 font-semibold text-white shadow-sm transition hover:brightness-95 hover:shadow-[0_0_20px_color-mix(in srgb, var(--brand) 35%, transparent)]">
         Calculate Offer
       </button>
     </div>}const $=[{text:"Crunching the numbers…",duration:1500},{text:"Checking today's going rate…",duration:1600},{text:"Comparing against today's market (no lowballing here)…",duration:1900},{text:"Making sure you're not leaving money on the table…",duration:1900},{text:"Politely arguing with our pricing bot…",duration:1700},{text:"Weighing up your accessories (yes, the cable counts)…",duration:1900},{text:"Double-checking everything adds up…",duration:1700},{text:"Almost there…",duration:1300},{text:"Locking in your best offer…",duration:1500}];function Lt({onDone:e}){const[n,a]=m(0);return _(()=>{const l=[];let f=0;for(let i=1;i<$.length;i++)f+=$[i-1].duration,l.push(setTimeout(()=>a(i),f));f+=$[$.length-1].duration;const p=setTimeout(e,f);return()=>{l.forEach(clearTimeout),clearTimeout(p)}},[e]),<div className="flex flex-col items-center justify-center gap-5 rounded-2xl border border-brand/30 bg-gradient-to-b from-brand/10 to-[var(--card)] px-4 py-20 text-center">
       <span className="h-12 w-12 animate-spin rounded-full border-4 border-brand/20 border-t-brand"/>
-      <p key={n}className="msg-in text-sm font-medium text-muted"aria-live="polite">
+      <p key={n}className="msg-in text-base font-medium text-muted"aria-live="polite">
         {$[n].text}
       </p>
     </div>}/**
@@ -355,20 +355,20 @@ function It({total:e,items:n,paymentLabel:a,onContinue:l,onBack:f,coupon:S,coupo
   <div className="space-y-4">
     <I onClick={f}label="Back"/>
     <div className="rounded-2xl border border-line bg-card px-5 py-10 text-center">
-      <p className="reveal-rise text-[0.7rem] font-medium uppercase tracking-[0.18em] text-muted">
+      <p className="reveal-rise text-xs font-medium uppercase tracking-[0.18em] text-muted">
         Your offer
       </p>
       {n.length>1&&<ul className="reveal-rise reveal-delay-1 mt-6 space-y-2 border-t border-line pt-5 text-left">
-          {n.map(r=><li key={r.key}className="flex items-start justify-between gap-3 text-sm">
+          {n.map(r=><li key={r.key}className="flex items-start justify-between gap-3 text-base">
               <span className="text-muted">
                 {r.model} {r.capacity!=="N/A"?`(${r.capacity})`:""}, {r.condition}
-                {r.accessories?.length>0&&<span className="block text-xs text-muted opacity-70">
+                {r.accessories?.length>0&&<span className="block text-sm text-muted opacity-70">
                     {r.accessories.map(b=>b.label).join(", ")}
                   </span>}
-                {(r.appliedFaults?.length>0||r.aiProposedFaults?.length>0)&&<span className="block text-xs text-red-500">
+                {(r.appliedFaults?.length>0||r.aiProposedFaults?.length>0)&&<span className="block text-sm text-red-500">
                     {[...r.appliedFaults.map(b=>`${b.label}${b.deduction?` (-${B(b.deduction)})`:""}`),...(r.aiProposedFaults||[]).map(b=>`${b.label} (-${B(b.deduction)}, pending review)`)].join(", ")}
                   </span>}
-                {r.extras?.filter(b=>b.value>0).length>0&&<span className="block text-xs text-positive">
+                {r.extras?.filter(b=>b.value>0).length>0&&<span className="block text-sm text-positive">
                     Extras (estimated, confirmed on testing): {r.extras.filter(b=>b.value>0).map(b=>`${b.label} (+${B(b.value)})`).join(", ")}
                   </span>}
               </span>
@@ -380,11 +380,11 @@ function It({total:e,items:n,paymentLabel:a,onContinue:l,onBack:f,coupon:S,coupo
       <p className="reveal-rise reveal-delay-1 tabular mt-8 text-[clamp(2.75rem,13vw,4.5rem)] font-bold leading-[0.95] tracking-[-0.03em] text-fg">
         {B(p)}
       </p>
-      {S&&<p key={S.code}className="gain-in tabular mt-3 text-sm font-medium text-positive">
+      {S&&<p key={S.code}className="gain-in tabular mt-3 text-base font-medium text-positive">
           +{B(S.bonus)} added with {S.code}
         </p>}
       <div className="reveal-rise reveal-delay-2 mx-auto mt-6 h-px w-12 bg-brand"/>
-      <p className="reveal-rise reveal-delay-3 mt-7 text-sm text-muted">
+      <p className="reveal-rise reveal-delay-3 mt-7 text-base text-muted">
         {He?`Paid via ${a}, that's your total, all in.`:`Paid via ${a}, that's your total, all in, no surprises.`}
       </p>
       {/* Names the one moving part and its amount, and says outright that
@@ -392,37 +392,37 @@ function It({total:e,items:n,paymentLabel:a,onContinue:l,onBack:f,coupon:S,coupo
           priced from what you told us is an estimate", which was true and
           useless: it read as though the whole offer might be a guess, at
           the exact moment the customer is deciding whether to trust it. */}
-      {He&&<p className="reveal-rise reveal-delay-3 mx-auto mt-4 max-w-sm rounded-lg border border-line bg-canvas px-4 py-3.5 text-left text-sm leading-relaxed text-muted">
+      {He&&<p className="reveal-rise reveal-delay-3 mx-auto mt-4 max-w-sm rounded-lg border border-line bg-canvas px-4 py-3.5 text-left text-base leading-relaxed text-muted">
           {Ge>0
             ?<>The price for the device itself is fixed. The <span className="font-semibold text-fg">{B(Ge)}</span> we have taken off for the faults you reported is our estimate, and it is usually close.</>
             :<>The price for the device itself is fixed. What we take off for the faults you reported is still to be worked out.</>}
           {" "}We check the faults properly once your device reaches us, then come back to you with a firm offer.
         </p>}
-      {e>=2e4&&<p className="reveal-rise reveal-delay-3 mt-1.5 text-sm font-medium text-fg">
+      {e>=2e4&&<p className="reveal-rise reveal-delay-3 mt-1.5 text-base font-medium text-fg">
           That&apos;s a proper number. Nice work.
         </p>}
     </div>
     <div className="rounded-2xl border border-line bg-card p-4">
       {S?<div className="flex items-start justify-between gap-3">
           <div>
-            <p className="text-sm font-semibold text-positive">Coupon {S.code} applied</p>
-            <p className="mt-0.5 text-xs text-positive opacity-80">
+            <p className="text-base font-semibold text-positive">Coupon {S.code} applied</p>
+            <p className="mt-0.5 text-sm text-positive opacity-80">
               {S.description||"Bonus added to your offer"} (+{B(S.bonus)})
             </p>
           </div>
-          <button type="button"onClick={h}className="shrink-0 text-xs font-medium text-muted transition hover:text-fg hover:underline">
+          <button type="button"onClick={h}className="shrink-0 text-sm font-medium text-muted transition hover:text-fg hover:underline">
             Remove
           </button>
         </div>
       :<div>
-          <label className="mb-1.5 block text-sm font-medium text-fg">Have a coupon code?</label>
+          <label className="mb-1.5 block text-base font-medium text-fg">Have a coupon code?</label>
           <div className="flex gap-2">
-            <input value={E}onChange={c=>C(c.target.value.toUpperCase())}onKeyDown={c=>{c.key==="Enter"&&(c.preventDefault(),y())}}placeholder="Enter your code"className="w-full rounded-lg border border-line bg-card px-3 py-2 text-sm tracking-wider text-fg placeholder-muted focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"/>
-            <button type="button"onClick={y}disabled={k||!E.trim()}className="shrink-0 rounded-lg border border-brand px-4 py-2 text-sm font-semibold text-brand transition hover:bg-brand/5 disabled:cursor-not-allowed disabled:opacity-40">
+            <input value={E}onChange={c=>C(c.target.value.toUpperCase())}onKeyDown={c=>{c.key==="Enter"&&(c.preventDefault(),y())}}placeholder="Enter your code"className="w-full rounded-lg border border-line bg-card px-3 py-2 text-base tracking-wider text-fg placeholder-muted focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"/>
+            <button type="button"onClick={y}disabled={k||!E.trim()}className="shrink-0 rounded-lg border border-brand px-4 py-2 text-base font-semibold text-brand transition hover:bg-brand/5 disabled:cursor-not-allowed disabled:opacity-40">
               {k?"Checking":"Apply"}
             </button>
           </div>
-          {N&&<p className="mt-2 text-xs text-red-500">{N}</p>}
+          {N&&<p className="mt-2 text-sm text-red-500">{N}</p>}
         </div>}
     </div>
     <button type="button"onClick={l}className="w-full rounded-xl bg-brand px-4 py-3.5 font-semibold text-white transition hover:bg-brand-600">
@@ -430,10 +430,10 @@ function It({total:e,items:n,paymentLabel:a,onContinue:l,onBack:f,coupon:S,coupo
     </button>
   </div>}const _t=["First National Bank (FNB)","Absa","Capitec","Nedbank","Discovery","Investec","Standard Bank","Other"],Rt=["Cheque","Savings","Current","Credit","Other"],Bt=["Gauteng","Free State","Eastern Cape","KwaZulu-Natal","Limpopo","Mpumalanga","Northern Cape","North West","Western Cape"];function Mt({form:e,setForm:n,onSubmit:a,submitting:l,onBack:f,total:p,paymentPreference:i,idUpload:u,onIdFile:r,selfieUpload:b,onSelfieFile:A}){function x(c){return w=>n(R=>({...R,[c]:w.target.value}))}const g=i==="eft"||i==="consignment",z=ft(e.idNumber),T=bt(e.preferredCollectionDate),[dn,fn]=m(!1),Wn=e.idNumber.trim().replace(/\s/g,""),Yn=/^\d+$/.test(Wn),Kn=Yn?Wn.length===13?"That ID number doesn't check out, please double-check it.":"Should be 13 digits for an SA ID number, or 6-9 characters for a passport number.":"That doesn't look like a valid SA ID or passport number, please double-check it.",v=se(()=>{const c=new Date;return c.setDate(c.getDate()+1),`${c.getFullYear()}-${String(c.getMonth()+1).padStart(2,"0")}-${String(c.getDate()).padStart(2,"0")}`},[]),j=u.status==="done"&&b.status==="done"&&z.valid&&T&&e.ageConfirmed&&e.termsAccepted&&e.privacyAccepted&&(!g||e.bankName&&e.accountType&&e.branchCode&&e.accountNumber)&&!l;return<form onSubmit={a}className="space-y-3">
       <I onClick={f}label="Back to my offer"/>
-      <p className="mb-1 text-sm font-medium text-muted">
+      <p className="mb-1 text-base font-medium text-muted">
         Your offer: <span className="font-bold text-fg">{B(p)}</span>. Almost done, where should we collect from?
       </p>
-      <div className="mb-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted">
+      <div className="mb-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted">
         <span>🔒 Encrypted &amp; secure</span>
         <span>📋 Second-Hand Goods Act compliant</span>
         <span>💳 Multiple payout options</span>
@@ -448,8 +448,8 @@ function It({total:e,items:n,paymentLabel:a,onContinue:l,onBack:f,coupon:S,coupo
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="mb-1 block text-sm font-medium text-fg">Province</label>
-          <select value={e.province}onChange={x("province")}className="w-full rounded-lg border border-line bg-card px-3 py-2 text-sm text-fg focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand">
+          <label className="mb-1 block text-base font-medium text-fg">Province</label>
+          <select value={e.province}onChange={x("province")}className="w-full rounded-lg border border-line bg-card px-3 py-2 text-base text-fg focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand">
             <option value="">Select a province</option>
             {Bt.map(c=><option key={c}value={c}>
                 {c}
@@ -459,42 +459,42 @@ function It({total:e,items:n,paymentLabel:a,onContinue:l,onBack:f,coupon:S,coupo
         <F label="Postal code"value={e.postalCode}onChange={x("postalCode")}/>
       </div>
       <div>
-        <label className="mb-1 block text-sm font-medium text-fg">Is this your residential address?</label>
-        <select value={e.residentialAddress?"yes":"no"}onChange={c=>n(w=>({...w,residentialAddress:c.target.value==="yes"}))}className="w-full rounded-lg border border-line bg-card px-3 py-2 text-sm text-fg focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand">
+        <label className="mb-1 block text-base font-medium text-fg">Is this your residential address?</label>
+        <select value={e.residentialAddress?"yes":"no"}onChange={c=>n(w=>({...w,residentialAddress:c.target.value==="yes"}))}className="w-full rounded-lg border border-line bg-card px-3 py-2 text-base text-fg focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand">
           <option value="yes">Yes</option>
           <option value="no">No</option>
         </select>
-        <p className="mt-1 text-xs text-muted">
+        <p className="mt-1 text-sm text-muted">
           We&apos;re legally required to keep your residential address and ID documents on record for 5 years from the
           transaction date.
         </p>
       </div>
       <div>
-        <label className="mb-1 block text-sm font-medium text-fg">Preferred collection date</label>
-        <input type="date"min={v}value={e.preferredCollectionDate}onChange={x("preferredCollectionDate")}className={`w-full rounded-lg border bg-card px-3 py-2 text-sm text-fg focus:outline-none focus:ring-1 ${e.preferredCollectionDate&&!T?"border-red-300 focus:border-red-400 focus:ring-red-400":"border-line focus:border-brand focus:ring-brand"}`}/>
-        <p className="mt-1 text-xs text-muted">
+        <label className="mb-1 block text-base font-medium text-fg">Preferred collection date</label>
+        <input type="date"min={v}value={e.preferredCollectionDate}onChange={x("preferredCollectionDate")}className={`w-full rounded-lg border bg-card px-3 py-2 text-base text-fg focus:outline-none focus:ring-1 ${e.preferredCollectionDate&&!T?"border-red-300 focus:border-red-400 focus:ring-red-400":"border-line focus:border-brand focus:ring-brand"}`}/>
+        <p className="mt-1 text-sm text-muted">
           Our couriers only collect on weekdays, not weekends or SA public holidays.
         </p>
-        {e.preferredCollectionDate&&!T&&<p className="mt-1 text-xs text-red-600">
+        {e.preferredCollectionDate&&!T&&<p className="mt-1 text-sm text-red-600">
             That date&apos;s a weekend or public holiday, our couriers don&apos;t collect then, please pick a weekday.
           </p>}
       </div>
       <div>
-        <label className="mb-1 block text-sm font-medium text-fg">Anything we should know?</label>
-        <textarea value={e.notes}onChange={x("notes")}rows={3}className="w-full rounded-lg border border-line bg-card px-3 py-2 text-sm text-fg focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"/>
+        <label className="mb-1 block text-base font-medium text-fg">Anything we should know?</label>
+        <textarea value={e.notes}onChange={x("notes")}rows={3}className="w-full rounded-lg border border-line bg-card px-3 py-2 text-base text-fg focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"/>
       </div>
 
       {g&&<div className="rounded-lg border border-line bg-canvas p-3">
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
+          <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted">
             Banking details, for your payout
           </p>
-          <p className="mb-2 text-xs text-muted">🔒 Used only to pay you for this sale.</p>
+          <p className="mb-2 text-sm text-muted">🔒 Used only to pay you for this sale.</p>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="mb-1 block text-sm font-medium text-fg">
+              <label className="mb-1 block text-base font-medium text-fg">
                 Bank name <span className="text-red-500">*</span>
               </label>
-              <select value={e.bankName}onChange={x("bankName")}className="w-full rounded-lg border border-line bg-card px-3 py-2 text-sm text-fg focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand">
+              <select value={e.bankName}onChange={x("bankName")}className="w-full rounded-lg border border-line bg-card px-3 py-2 text-base text-fg focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand">
                 <option value="">Select a bank</option>
                 {_t.map(c=><option key={c}value={c}>
                     {c}
@@ -502,10 +502,10 @@ function It({total:e,items:n,paymentLabel:a,onContinue:l,onBack:f,coupon:S,coupo
               </select>
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium text-fg">
+              <label className="mb-1 block text-base font-medium text-fg">
                 Account type <span className="text-red-500">*</span>
               </label>
-              <select value={e.accountType}onChange={x("accountType")}className="w-full rounded-lg border border-line bg-card px-3 py-2 text-sm text-fg focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand">
+              <select value={e.accountType}onChange={x("accountType")}className="w-full rounded-lg border border-line bg-card px-3 py-2 text-base text-fg focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand">
                 <option value="">Select a type</option>
                 {Rt.map(c=><option key={c}value={c}>
                     {c}
@@ -520,49 +520,49 @@ function It({total:e,items:n,paymentLabel:a,onContinue:l,onBack:f,coupon:S,coupo
         </div>}
 
       <div className="rounded-lg border border-line bg-canvas p-3">
-        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
+        <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted">
           Required by law for buying second-hand goods
         </p>
         <div>
-          <label className="mb-1 block text-sm font-medium text-fg">
+          <label className="mb-1 block text-base font-medium text-fg">
             ID or passport number <span className="text-red-500">*</span>
           </label>
-          <input type="text"required value={e.idNumber}onChange={x("idNumber")}onBlur={()=>fn(!0)}className={`w-full rounded-lg border bg-card px-3 py-2 text-sm text-fg focus:outline-none focus:ring-1 ${dn&&e.idNumber&&!z.valid?"border-red-300 focus:border-red-400 focus:ring-red-400":"border-line focus:border-brand focus:ring-brand"}`}/>
-          {dn&&e.idNumber&&!z.valid&&<p className="mt-1 text-xs text-red-600">
+          <input type="text"required value={e.idNumber}onChange={x("idNumber")}onBlur={()=>fn(!0)}className={`w-full rounded-lg border bg-card px-3 py-2 text-base text-fg focus:outline-none focus:ring-1 ${dn&&e.idNumber&&!z.valid?"border-red-300 focus:border-red-400 focus:ring-red-400":"border-line focus:border-brand focus:ring-brand"}`}/>
+          {dn&&e.idNumber&&!z.valid&&<p className="mt-1 text-sm text-red-600">
               {Kn}
             </p>}
         </div>
 
         <div className="mt-3">
-          <label className="mb-1 block text-sm font-medium text-fg">
+          <label className="mb-1 block text-base font-medium text-fg">
             Photo of your ID or passport <span className="text-red-500">*</span>
           </label>
-          <p className="mb-1 text-xs text-muted">A clear colour photo, no black-and-white copies, showing your photo and ID number.</p>
-          <input type="file"accept="image/*,application/pdf"required={u.status!=="done"}onChange={c=>r(c.target.files?.[0])}className="block w-full text-sm text-muted file:mr-3 file:rounded-lg file:border-0 file:bg-brand file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:brightness-95"/>
-          {u.status==="uploading"&&<p className="mt-1 text-xs text-muted">Uploading {u.fileName}…</p>}
-          {u.status==="done"&&<p className="mt-1 text-xs text-positive">Uploaded, {u.fileName}</p>}
-          {u.status==="error"&&<p className="mt-1 text-xs text-red-600">Couldn&apos;t upload that file, {u.error}. Try again.</p>}
+          <p className="mb-1 text-sm text-muted">A clear colour photo, no black-and-white copies, showing your photo and ID number.</p>
+          <input type="file"accept="image/*,application/pdf"required={u.status!=="done"}onChange={c=>r(c.target.files?.[0])}className="block w-full text-base text-muted file:mr-3 file:rounded-lg file:border-0 file:bg-brand file:px-3 file:py-2 file:text-base file:font-semibold file:text-white hover:file:brightness-95"/>
+          {u.status==="uploading"&&<p className="mt-1 text-sm text-muted">Uploading {u.fileName}…</p>}
+          {u.status==="done"&&<p className="mt-1 text-sm text-positive">Uploaded, {u.fileName}</p>}
+          {u.status==="error"&&<p className="mt-1 text-sm text-red-600">Couldn&apos;t upload that file, {u.error}. Try again.</p>}
         </div>
 
         <div className="mt-3">
-          <label className="mb-1 block text-sm font-medium text-fg">
+          <label className="mb-1 block text-base font-medium text-fg">
             A selfie of you <span className="text-red-500">*</span>
           </label>
-          <p className="mb-1 text-xs text-muted">
+          <p className="mb-1 text-sm text-muted">
             Face the camera directly with nothing covering your face, so we can confirm it&apos;s really you selling.
           </p>
-          <input type="file"accept="image/*"required={b.status!=="done"}onChange={c=>A(c.target.files?.[0])}className="block w-full text-sm text-muted file:mr-3 file:rounded-lg file:border-0 file:bg-brand file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:brightness-95"/>
-          {b.status==="uploading"&&<p className="mt-1 text-xs text-muted">Uploading {b.fileName}…</p>}
-          {b.status==="done"&&<p className="mt-1 text-xs text-positive">Uploaded, {b.fileName}</p>}
-          {b.status==="error"&&<p className="mt-1 text-xs text-red-600">Couldn&apos;t upload that file, {b.error}. Try again.</p>}
+          <input type="file"accept="image/*"required={b.status!=="done"}onChange={c=>A(c.target.files?.[0])}className="block w-full text-base text-muted file:mr-3 file:rounded-lg file:border-0 file:bg-brand file:px-3 file:py-2 file:text-base file:font-semibold file:text-white hover:file:brightness-95"/>
+          {b.status==="uploading"&&<p className="mt-1 text-sm text-muted">Uploading {b.fileName}…</p>}
+          {b.status==="done"&&<p className="mt-1 text-sm text-positive">Uploaded, {b.fileName}</p>}
+          {b.status==="error"&&<p className="mt-1 text-sm text-red-600">Couldn&apos;t upload that file, {b.error}. Try again.</p>}
         </div>
 
-        <p className="mt-3 text-xs text-muted">
+        <p className="mt-3 text-sm text-muted">
           🔒 Your ID and selfie are encrypted and only ever used to verify your identity for this sale, as required
           under the Second-Hand Goods Act.
         </p>
 
-        <label className="mt-3 flex items-start gap-2 text-sm text-fg">
+        <label className="mt-3 flex items-start gap-2 text-base text-fg">
           <input type="checkbox"required checked={e.ageConfirmed}onChange={c=>n(w=>({...w,ageConfirmed:c.target.checked}))}className="mt-0.5 h-4 w-4 rounded border-line text-brand focus:ring-brand"/>
           <span>
             I confirm I am 18 years or older, that this device is legally mine to sell, and that it is not
@@ -570,7 +570,7 @@ function It({total:e,items:n,paymentLabel:a,onContinue:l,onBack:f,coupon:S,coupo
           </span>
         </label>
 
-        <label className="mt-3 flex items-start gap-2 text-sm text-fg">
+        <label className="mt-3 flex items-start gap-2 text-base text-fg">
           <input type="checkbox"required checked={e.termsAccepted}onChange={c=>n(w=>({...w,termsAccepted:c.target.checked}))}className="mt-0.5 h-4 w-4 rounded border-line text-brand focus:ring-brand"/>
           <span>
             I accept the{" "}
@@ -585,7 +585,7 @@ function It({total:e,items:n,paymentLabel:a,onContinue:l,onBack:f,coupon:S,coupo
           </span>
         </label>
 
-        <label className="mt-3 flex items-start gap-2 text-sm text-fg">
+        <label className="mt-3 flex items-start gap-2 text-base text-fg">
           <input type="checkbox"required checked={e.privacyAccepted}onChange={c=>n(w=>({...w,privacyAccepted:c.target.checked}))}className="mt-0.5 h-4 w-4 rounded border-line text-brand focus:ring-brand"/>
           <span>
             I agree to the{" "}
@@ -609,21 +609,21 @@ function It({total:e,items:n,paymentLabel:a,onContinue:l,onBack:f,coupon:S,coupo
       </button>
     </form>}const Ye=["We'll take it from here.","Kettle's on, we won't be long.","No further haggling required, promise.","Sit back, we've got this one."];function $t({leadId:e,total:n,items:a}){const[l]=m(()=>Ye[Math.floor(Math.random()*Ye.length)]);return<div className="rounded-xl border border-green-200 bg-green-50 p-5 text-center">
       <p className="text-lg font-semibold text-positive">Thanks, we&apos;ve got your details!</p>
-      <p className="mt-2 text-sm text-positive">
+      <p className="mt-2 text-base text-positive">
         Your quoted offer of <span className="font-bold">{B(n)}</span> for {a.length}{" "}
         item{a.length===1?"":"s"} has been submitted. We&apos;ll be in touch
         shortly to arrange collection.
       </p>
-      {e&&<p className="mt-3 text-sm text-positive">
+      {e&&<p className="mt-3 text-base text-positive">
         Your reference: <span className="font-mono font-bold tracking-wider">{e}</span>
       </p>}
-      <p className="mt-2 text-xs text-positive">{l}</p>
+      <p className="mt-2 text-sm text-positive">{l}</p>
     </div>}function F({label:e,required:n,type:a="text",value:l,onChange:f,...p}){return<div>
-      <label className="mb-1 block text-sm font-medium text-fg">
+      <label className="mb-1 block text-base font-medium text-fg">
         {e} {n&&<span className="text-red-500">*</span>}
       </label>
-      <input type={a}required={n}value={l}onChange={f}className="w-full rounded-lg border border-line bg-card px-3 py-2 text-sm text-fg focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"{...p}/>
-    </div>}function I({onClick:e,label:n}){return<button type="button"onClick={e}className="mb-1 text-sm font-medium text-brand hover:underline">
+      <input type={a}required={n}value={l}onChange={f}className="w-full rounded-lg border border-line bg-card px-3 py-2 text-base text-fg focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"{...p}/>
+    </div>}function I({onClick:e,label:n}){return<button type="button"onClick={e}className="mb-1 text-base font-medium text-brand hover:underline">
       ← {n}
     </button>}function Ce({rows:e}){return<div className="space-y-2">
       {Array.from({length:e}).map((n,a)=><div key={a}className="skeleton-shimmer h-14 rounded-xl"/>)}
