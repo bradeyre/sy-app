@@ -208,12 +208,12 @@ function U(t,o){const mk=(T?.model||"").toLowerCase();return(i?.conditionFaults?
         </K>)}
       <div className="mt-3">
         <label className="mb-1 block text-sm font-medium text-muted">Anything else?</label>
-        <textarea value={l}onChange={b=>f(b.target.value)}placeholder="e.g. 3 extra games, a VR headset..."maxLength={500}rows={2}className="w-full rounded-xl border border-line bg-card px-4 py-3 text-base text-fg placeholder-muted focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"/>
+        <textarea value={l}onChange={b=>f(b.target.value)}placeholder={e.placeholder||"e.g. a case, a spare cable\u2026"}maxLength={500}rows={2}className="w-full rounded-xl border border-line bg-card px-4 py-3 text-base text-fg placeholder-muted focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"/>
       </div>
       <button type="button"onClick={p}disabled={!r}className="mt-4 w-full rounded-xl bg-brand px-4 py-3.5 font-semibold text-white shadow-sm transition hover:brightness-95 hover:shadow-[0_0_20px_color-mix(in srgb, var(--brand) 35%, transparent)] disabled:opacity-60 disabled:hover:shadow-none">
         Continue with extras
       </button>
-      <button type="button"onClick={u}className="mt-1 w-full rounded-xl border border-line bg-card px-4 py-3 text-base font-medium text-muted shadow-sm transition hover:bg-canvas">
+      <button type="button"onClick={u}className="mt-1 w-full rounded-xl border border-line bg-card px-4 py-3 text-base font-medium text-fg shadow-sm transition hover:border-brand hover:bg-canvas">
         Skip, no extras
       </button>
     </div>}function Ft({brand:et,conditionRaw:Qe,faultRules:e,selectedFaultKeys:n,onToggleFault:a,batteryPctInput:l,onBatteryPctChange:f,showFreeText:p,faultDescription:i,onFaultDescriptionChange:u,onContinue:r,onBack:b}){const A=e.find(v=>v.type==="battery_threshold"),x=e.filter(v=>v.type==="checkbox"),g=x.find(v=>v.decline&&n.includes(v.key)),gB=!!g&&g.blocks!==!1,Un=n.length>0||!!(p&&i.trim()),[z,T]=m(!!A),
