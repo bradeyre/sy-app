@@ -235,7 +235,7 @@ function U(t,o){const mk=(T?.model||"").toLowerCase();return(i?.conditionFaults?
       {n.map(f=><Ne key={f}onClick={()=>a(f)}>
           {f}
         </Ne>)}
-    </div>}function At({category:e,brand:u2,models:n,loading:a,search:l,onSearch:f,onChoose:p,onBack:i}){const u=n?.filter(r=>r.label.toLowerCase().includes(l.trim().toLowerCase()));return<div className="space-y-2">
+    </div>}function At({category:e,brand:u2,models:n,loading:a,search:l,onSearch:f,onChoose:p,onBack:i}){/* With the brand already chosen and named in the question above, repeating it on every row is noise: "Which Sage coffee machine do you have?" followed by "Sage Bambino Plus". Stripped for display only -- the value sent on is untouched, because Airtable matches on the full name. */const trim=t=>u2&&t.toLowerCase().startsWith(u2.toLowerCase()+" ")?t.slice(u2.length+1):t;const u=n?.filter(r=>r.label.toLowerCase().includes(l.trim().toLowerCase()));return<div className="space-y-2">
       <I onClick={i}label="Back"/>
       <p className="mb-2 text-base font-medium text-muted">Which {u2?`${u2} `:""}{e.label} do you have?</p>
       {!a&&n&&n.length>8&&<input type="text"autoFocus value={l}onChange={r=>f(r.target.value)}placeholder={`Search ${n.length} ${e.label} models…`}className="mb-2 w-full rounded-xl border border-line bg-card px-4 py-3 text-base text-fg focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"/>}
@@ -257,7 +257,7 @@ function U(t,o){const mk=(T?.model||"").toLowerCase();return(i?.conditionFaults?
           how many models there are. */}
       {!a&&<div className={n&&n.length>8?"max-h-[26rem] space-y-2 overflow-y-auto pr-1":"space-y-2"}>
         {u?.map(r=><Ne key={r.model}onClick={()=>p(r)}>
-            {r.label}
+            {trim(r.label)}
           </Ne>)}
       </div>}
       {!a&&u&&u.length===0&&<p className="px-1 py-4 text-base text-muted">
