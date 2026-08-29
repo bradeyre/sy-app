@@ -238,8 +238,16 @@ function U(t,o){const mk=(T?.model||"").toLowerCase();return(i?.conditionFaults?
           page by about 1800px and threw away wherever the visitor had
           scrolled to. Capped, every step sits in the same band and the page
           barely moves. Only long lists are capped, so a category with a
-          handful of models still renders as a plain list. */}
-      {!a&&<div className={n&&n.length>8?"max-h-[26rem] space-y-2 overflow-y-auto overscroll-contain pr-1":"space-y-2"}>
+          handful of models still renders as a plain list.
+
+          No overscroll-contain: that is for modals, where the page behind
+          must not move. Here the list is inline and takes over half a phone
+          screen, so trapping the scroll at its end would leave a thumb
+          swiping against nothing. Chaining to the page is what a reader
+          expects. The cap deliberately lands mid-row, which is the ordinary
+          cue that there is more below, and the search box above already says
+          how many models there are. */}
+      {!a&&<div className={n&&n.length>8?"max-h-[26rem] space-y-2 overflow-y-auto pr-1":"space-y-2"}>
         {u?.map(r=><Ne key={r.model}onClick={()=>p(r)}>
             {r.label}
           </Ne>)}
