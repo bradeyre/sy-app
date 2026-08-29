@@ -61,7 +61,7 @@ function U(t,o){const mk=(T?.model||"").toLowerCase();return(i?.conditionFaults?
 
       {D.length>0&&e!==s.DONE&&e!==s.REVEAL&&e!==s.CALCULATING&&<Tt items={D}onRemove={it}/>}
 
-      {De&&<p className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-base text-red-700">{De}</p>}
+      {De&&<p className="mb-4 rounded-lg border border-danger-line bg-danger-bg px-4 py-3 text-base font-medium text-danger">{De}</p>}
 
       <div key={e}className="step-enter">
         {e===s.CATEGORY&&<Et categories={a}loading={f}onChoose={et}hasItems={D.length>0}onProceed={()=>n(s.PAYMENT)}/>}
@@ -122,17 +122,17 @@ function U(t,o){const mk=(T?.model||"").toLowerCase();return(i?.conditionFaults?
                 {a.condition}
                 {a.accessories?.length>0&&` \xB7 ${a.accessories.map(l=>l.label).join(", ")}`}
               </span>
-              {(a.appliedFaults?.length>0||a.aiProposedFaults?.length>0||a.pendingReviewFaults?.length>0)&&<span className="block text-sm text-red-500">
+              {(a.appliedFaults?.length>0||a.aiProposedFaults?.length>0||a.pendingReviewFaults?.length>0)&&<span className="block text-sm text-danger">
                   {[...(a.appliedFaults||[]).map(l=>l.label),...(a.aiProposedFaults||[]).map(l=>`${l.label} (estimate, pending review)`),...(a.pendingReviewFaults||[]).map(l=>`${l.label} (pending review)`)].join(", ")}
                 </span>}
-              {a.declined&&<span className="mt-1 block rounded-md bg-red-50 px-2 py-1 text-sm font-semibold text-red-700">
+              {a.declined&&<span className="mt-1 block rounded-md border border-danger-line bg-danger-bg px-2 py-1 text-sm font-semibold text-danger">
                   Sorry, we can&apos;t buy this item in its current condition. Please remove it to continue.
                 </span>}
               {a.extras?.length>0&&<span className="block text-sm text-positive">
                   {a.extras.map(l=>l.pending?`${l.label} (estimating...)`:`${l.label} (+${B(l.value)})`).join(", ")}
                 </span>}
             </span>
-            <button onClick={()=>n(a.key)}type="button"aria-label={`Remove ${a.model}`}className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-muted transition-colors hover:bg-red-50 hover:text-red-500">
+            <button onClick={()=>n(a.key)}type="button"aria-label={`Remove ${a.model}`}className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-muted transition-colors hover:bg-danger-bg hover:text-danger">
               <svg viewBox="0 0 24 24"className="h-3.5 w-3.5"fill="none"stroke="currentColor"strokeWidth="2"strokeLinecap="round">
                 <line x1="6"y1="6"x2="18"y2="18"/>
                 <line x1="18"y1="6"x2="6"y2="18"/>
@@ -292,7 +292,7 @@ Je=Qe==="Mint",[Ze,Xe]=m(!1);return A&&z?<div className="space-y-2">
           </p>
         </div>}
 
-      {g?<p className={`rounded-lg px-4 py-3 text-base ${gB?"bg-red-500/10 text-red-500":"bg-amber-500/10 text-fg"}`}>
+      {g?<p className={`rounded-lg px-4 py-3 text-base ${gB?"border border-danger-line bg-danger-bg font-medium text-danger":"border border-warn-line bg-warn-bg text-fg"}`}>
           {g.declineMessage||"We are not able to buy a device in this condition. If you selected that by mistake, please go back and choose the condition that matches."}
         </p>:(x.length>0||p)&&<p className="px-1 pt-1 text-sm text-muted">
           {Je?"Leave it unticked if it does not apply.":"Select anything that applies. What we take off is our estimate from your description, and it is usually close. We check it against the device when it reaches us, then come back to you with a firm offer. Nothing to report? Just hit continue."}
@@ -381,7 +381,7 @@ function It({total:e,items:n,paymentLabel:a,onContinue:l,onBack:f,coupon:S,coupo
                 {r.accessories?.length>0&&<span className="block text-sm text-muted opacity-70">
                     {r.accessories.map(b=>b.label).join(", ")}
                   </span>}
-                {(r.appliedFaults?.length>0||r.aiProposedFaults?.length>0)&&<span className="block text-sm text-red-500">
+                {(r.appliedFaults?.length>0||r.aiProposedFaults?.length>0)&&<span className="block text-sm text-danger">
                     {[...r.appliedFaults.map(b=>`${b.label}${b.deduction?` (-${B(b.deduction)})`:""}`),...(r.aiProposedFaults||[]).map(b=>`${b.label} (-${B(b.deduction)}, pending review)`)].join(", ")}
                   </span>}
                 {r.extras?.filter(b=>b.value>0).length>0&&<span className="block text-sm text-positive">
@@ -438,7 +438,7 @@ function It({total:e,items:n,paymentLabel:a,onContinue:l,onBack:f,coupon:S,coupo
               {k?"Checking":"Apply"}
             </button>
           </div>
-          {N&&<p className="mt-2 text-sm text-red-500">{N}</p>}
+          {N&&<p className="mt-2 text-sm text-danger">{N}</p>}
         </div>}
     </div>
     <button type="button"onClick={l}className="w-full rounded-xl bg-brand px-4 py-3.5 font-semibold text-white transition hover:bg-brand-600">
@@ -487,11 +487,11 @@ function It({total:e,items:n,paymentLabel:a,onContinue:l,onBack:f,coupon:S,coupo
       </div>
       <div>
         <label className="mb-1 block text-base font-medium text-fg">Preferred collection date</label>
-        <input type="date"min={v}value={e.preferredCollectionDate}onChange={x("preferredCollectionDate")}className={`w-full rounded-lg border bg-card px-3 py-2 text-base text-fg focus:outline-none focus:ring-1 ${e.preferredCollectionDate&&!T?"border-red-300 focus:border-red-400 focus:ring-red-400":"border-line focus:border-brand focus:ring-brand"}`}/>
+        <input type="date"min={v}value={e.preferredCollectionDate}onChange={x("preferredCollectionDate")}className={`w-full rounded-lg border bg-card px-3 py-2 text-base text-fg focus:outline-none focus:ring-1 ${e.preferredCollectionDate&&!T?"border-danger-line focus:border-danger focus:ring-danger":"border-line focus:border-brand focus:ring-brand"}`}/>
         <p className="mt-1 text-sm text-muted">
           Our couriers only collect on weekdays, not weekends or SA public holidays.
         </p>
-        {e.preferredCollectionDate&&!T&&<p className="mt-1 text-sm text-red-600">
+        {e.preferredCollectionDate&&!T&&<p className="mt-1 text-sm text-danger">
             That date&apos;s a weekend or public holiday, our couriers don&apos;t collect then, please pick a weekday.
           </p>}
       </div>
@@ -508,7 +508,7 @@ function It({total:e,items:n,paymentLabel:a,onContinue:l,onBack:f,coupon:S,coupo
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="mb-1 block text-base font-medium text-fg">
-                Bank name <span className="text-red-500">*</span>
+                Bank name <span className="text-danger">*</span>
               </label>
               <select value={e.bankName}onChange={x("bankName")}className="w-full rounded-lg border border-line bg-card px-3 py-2 text-base text-fg focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand">
                 <option value="">Select a bank</option>
@@ -519,7 +519,7 @@ function It({total:e,items:n,paymentLabel:a,onContinue:l,onBack:f,coupon:S,coupo
             </div>
             <div>
               <label className="mb-1 block text-base font-medium text-fg">
-                Account type <span className="text-red-500">*</span>
+                Account type <span className="text-danger">*</span>
               </label>
               <select value={e.accountType}onChange={x("accountType")}className="w-full rounded-lg border border-line bg-card px-3 py-2 text-base text-fg focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand">
                 <option value="">Select a type</option>
@@ -541,28 +541,28 @@ function It({total:e,items:n,paymentLabel:a,onContinue:l,onBack:f,coupon:S,coupo
         </p>
         <div>
           <label className="mb-1 block text-base font-medium text-fg">
-            ID or passport number <span className="text-red-500">*</span>
+            ID or passport number <span className="text-danger">*</span>
           </label>
-          <input type="text"required value={e.idNumber}onChange={x("idNumber")}onBlur={()=>fn(!0)}className={`w-full rounded-lg border bg-card px-3 py-2 text-base text-fg focus:outline-none focus:ring-1 ${dn&&e.idNumber&&!z.valid?"border-red-300 focus:border-red-400 focus:ring-red-400":"border-line focus:border-brand focus:ring-brand"}`}/>
-          {dn&&e.idNumber&&!z.valid&&<p className="mt-1 text-sm text-red-600">
+          <input type="text"required value={e.idNumber}onChange={x("idNumber")}onBlur={()=>fn(!0)}className={`w-full rounded-lg border bg-card px-3 py-2 text-base text-fg focus:outline-none focus:ring-1 ${dn&&e.idNumber&&!z.valid?"border-danger-line focus:border-danger focus:ring-danger":"border-line focus:border-brand focus:ring-brand"}`}/>
+          {dn&&e.idNumber&&!z.valid&&<p className="mt-1 text-sm text-danger">
               {Kn}
             </p>}
         </div>
 
         <div className="mt-3">
           <label className="mb-1 block text-base font-medium text-fg">
-            Photo of your ID or passport <span className="text-red-500">*</span>
+            Photo of your ID or passport <span className="text-danger">*</span>
           </label>
           <p className="mb-1 text-sm text-muted">A clear colour photo, no black-and-white copies, showing your photo and ID number.</p>
           <input type="file"accept="image/*,application/pdf"required={u.status!=="done"}onChange={c=>r(c.target.files?.[0])}className="block w-full text-base text-muted file:mr-3 file:rounded-lg file:border-0 file:bg-brand file:px-3 file:py-2 file:text-base file:font-semibold file:text-white hover:file:brightness-95"/>
           {u.status==="uploading"&&<p className="mt-1 text-sm text-muted">Uploading {u.fileName}…</p>}
           {u.status==="done"&&<p className="mt-1 text-sm text-positive">Uploaded, {u.fileName}</p>}
-          {u.status==="error"&&<p className="mt-1 text-sm text-red-600">Couldn&apos;t upload that file, {u.error}. Try again.</p>}
+          {u.status==="error"&&<p className="mt-1 text-sm text-danger">Couldn&apos;t upload that file, {u.error}. Try again.</p>}
         </div>
 
         <div className="mt-3">
           <label className="mb-1 block text-base font-medium text-fg">
-            A selfie of you <span className="text-red-500">*</span>
+            A selfie of you <span className="text-danger">*</span>
           </label>
           <p className="mb-1 text-sm text-muted">
             Face the camera directly with nothing covering your face, so we can confirm it&apos;s really you selling.
@@ -570,7 +570,7 @@ function It({total:e,items:n,paymentLabel:a,onContinue:l,onBack:f,coupon:S,coupo
           <input type="file"accept="image/*"required={b.status!=="done"}onChange={c=>A(c.target.files?.[0])}className="block w-full text-base text-muted file:mr-3 file:rounded-lg file:border-0 file:bg-brand file:px-3 file:py-2 file:text-base file:font-semibold file:text-white hover:file:brightness-95"/>
           {b.status==="uploading"&&<p className="mt-1 text-sm text-muted">Uploading {b.fileName}…</p>}
           {b.status==="done"&&<p className="mt-1 text-sm text-positive">Uploaded, {b.fileName}</p>}
-          {b.status==="error"&&<p className="mt-1 text-sm text-red-600">Couldn&apos;t upload that file, {b.error}. Try again.</p>}
+          {b.status==="error"&&<p className="mt-1 text-sm text-danger">Couldn&apos;t upload that file, {b.error}. Try again.</p>}
         </div>
 
         <p className="mt-3 text-sm text-muted">
@@ -636,7 +636,7 @@ function It({total:e,items:n,paymentLabel:a,onContinue:l,onBack:f,coupon:S,coupo
       <p className="mt-2 text-sm text-positive">{l}</p>
     </div>}function F({label:e,required:n,type:a="text",value:l,onChange:f,...p}){return<div>
       <label className="mb-1 block text-base font-medium text-fg">
-        {e} {n&&<span className="text-red-500">*</span>}
+        {e} {n&&<span className="text-danger">*</span>}
       </label>
       <input type={a}required={n}value={l}onChange={f}className="w-full rounded-lg border border-line bg-card px-3 py-2 text-base text-fg focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"{...p}/>
     </div>}function I({onClick:e,label:n}){return<button type="button"onClick={e}className="mb-1 text-base font-medium text-brand hover:underline">

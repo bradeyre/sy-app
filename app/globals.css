@@ -45,6 +45,12 @@
   --color-line: var(--border);
   --color-wash: var(--wash);
   --color-positive: var(--positive);
+  --color-danger: var(--danger);
+  --color-danger-bg: var(--danger-bg);
+  --color-danger-line: var(--danger-border);
+  --color-warn: var(--warn);
+  --color-warn-bg: var(--warn-bg);
+  --color-warn-line: var(--warn-border);
 
   --font-sans: var(--font-satoshi), ui-sans-serif, system-ui, -apple-system,
     BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -68,6 +74,30 @@
   --border: #dde1e8;
   --wash: #e6f5ff;
   --positive: #047857;
+
+  /* Refusals and errors.
+   *
+   * These were Tailwind's default palette inline -- `bg-red-50` with
+   * `text-red-700` for the error banner and the declined-item chip, and
+   * `bg-red-500/10 text-red-500` for the decline message. Both were wrong on
+   * the dark storefronts and in opposite directions: red-50 is very nearly
+   * white, so a "we can't buy this" chip rendered as a bright card on a
+   * near-black ground, while a 10% red wash under mid red-500 read as a
+   * muddy, subdued box that a seller could easily skim past.
+   *
+   * Tokenised so the pair carries real weight in both themes: on light the
+   * text darkens and the ground tints, on dark the text lifts well clear of
+   * the ground rather than sinking into it. A refusal is the one message in
+   * this flow that must not be missable.
+   */
+  --danger: #c81e1e;
+  --danger-bg: #fde8e8;
+  --danger-border: #f6b0b0;
+
+  /* The softer sibling: a decline that warns rather than blocks. */
+  --warn: #8a5a00;
+  --warn-bg: #fdf3d8;
+  --warn-border: #f0c96a;
 
   /* Explicit rather than `light dark`. The native form controls in this app
      are styled for the resolved theme only, and letting the UA pick the
@@ -95,6 +125,15 @@
     --wash: #0d1420;
     --positive: #34d399;
 
+    /* Lifted well clear of the near-black ground: mid red disappears into
+       it, which is what made the refusal read as subdued. */
+    --danger: #ff9b9b;
+    --danger-bg: #2e1416;
+    --danger-border: #7f2d2d;
+    --warn: #fcc94a;
+    --warn-bg: #2b2113;
+    --warn-border: #7a5a1a;
+
     color-scheme: dark;
   }
 }
@@ -111,6 +150,15 @@
     --border: #23262f;
     --wash: #0d1420;
     --positive: #34d399;
+
+    /* Lifted well clear of the near-black ground: mid red disappears into
+       it, which is what made the refusal read as subdued. */
+    --danger: #ff9b9b;
+    --danger-bg: #2e1416;
+    --danger-border: #7f2d2d;
+    --warn: #fcc94a;
+    --warn-bg: #2b2113;
+    --warn-border: #7a5a1a;
 
     color-scheme: dark;
 }
