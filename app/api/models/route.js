@@ -25,7 +25,8 @@ export async function GET(request) {
     // R2,013", which is its Poor price, on a model we only buy sealed.
     const [{ rows }, rules] = await Promise.all([
       query(
-        `select model, max(model_raw) as model_raw, condition, min(buy_price) as low, max(buy_price) as high
+        `select model, max(model_raw) as model_raw, max(brand) as brand, condition,
+        min(buy_price) as low, max(buy_price) as high
 from calc.buy_prices_public bp
 where brand ilike any($1) and type = $2 and ${notBlockedSql("bp", "$3")}
 group by model, condition`,
@@ -42,6 +43,12 @@ group by model, condition`,
       const entry = byModel.get(r.model) || {
         model: r.model,
         modelRaw: r.model_raw,
+        // Carried so the calculator can offer a brand step before the model
+        // list. A single-brand category (every Apple site, and most of Epic
+        // Deals) skips that step, so this costs nothing where it is not
+        // wanted and saves scrolling where it is: Epic Deals sells coffee
+        // machines from eleven makers.
+        brand: r.brand,
         fromPrice: Infinity,
         toPrice: -Infinity,
       };
@@ -58,6 +65,7 @@ group by model, condition`,
       .map((m) => ({
         model: m.model,
         label: displayModel(m.model, m.modelRaw),
+        brand: m.brand,
         fromPrice: m.fromPrice,
         toPrice: m.toPrice,
       }));
