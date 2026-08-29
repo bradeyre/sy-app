@@ -43,7 +43,39 @@
       <rect x="5" y="2.5" width="14" height="19" rx="2"/><circle cx="12" cy="15" r="3.5"/><circle cx="12" cy="7" r="1.2"/>
     </svg>,"VR Headset":<svg viewBox="0 0 24 24"fill="none"stroke="currentColor"strokeWidth="1.6"strokeLinecap="round"strokeLinejoin="round">
       <rect x="2" y="7" width="20" height="10" rx="3"/><path d="M9.5 17c.6 1.2 1.4 1.8 2.5 1.8s1.9-.6 2.5-1.8"/><path d="M2 10h-.5"/><path d="M22 10h.5"/>
-    </svg>},Q={Phone:{bg:"bg-brand/10",text:"text-brand"},Laptop:{bg:"bg-[#7c6ff0]/10",text:"text-[#7c6ff0]"},Desktop:{bg:"bg-[#14b8a6]/10",text:"text-[#14b8a6]"},Tablet:{bg:"bg-[#ec4899]/10",text:"text-[#ec4899]"},Watch:{bg:"bg-[#f59e0b]/10",text:"text-[#f59e0b]"},Earphone:{bg:"bg-[#22c55e]/10",text:"text-[#22c55e]"},Console:{bg:"bg-[#6366f1]/10",text:"text-[#6366f1]"},Vacuum:{bg:"bg-[#06b6d4]/10",text:"text-[#06b6d4]"},"Coffee Machine":{bg:"bg-[#d97706]/10",text:"text-[#d97706]"},"Hair Care":{bg:"bg-[#f43f5e]/10",text:"text-[#f43f5e]"},"Air Purifier":{bg:"bg-[#0ea5e9]/10",text:"text-[#0ea5e9]"},"Action Camera":{bg:"bg-[#ef4444]/10",text:"text-[#ef4444]"},Headphones:{bg:"bg-[#8b5cf6]/10",text:"text-[#8b5cf6]"},Speaker:{bg:"bg-[#f97316]/10",text:"text-[#f97316]"},"VR Headset":{bg:"bg-[#10b981]/10",text:"text-[#10b981]"}},xt={Sealed:"var(--brand)",Mint:"#22c55e",Good:"#f59e0b",Poor:"#9ca3af"};function faultAppliesTo(k,mk){const inc=k.appliesTo,exc=k.excludes;if(Array.isArray(exc)&&exc.some(x=>mk.includes(String(x).toLowerCase())))return!1;if(Array.isArray(inc)&&inc.length)return inc.some(x=>mk.includes(String(x).toLowerCase()));return!0}
+    </svg>},Q={Phone:{bg:"bg-brand/10",text:"text-brand"},Laptop:{bg:"bg-[#7c6ff0]/10",text:"text-[#7c6ff0]"},Desktop:{bg:"bg-[#14b8a6]/10",text:"text-[#14b8a6]"},Tablet:{bg:"bg-[#ec4899]/10",text:"text-[#ec4899]"},Watch:{bg:"bg-[#f59e0b]/10",text:"text-[#f59e0b]"},Earphone:{bg:"bg-[#22c55e]/10",text:"text-[#22c55e]"},Console:{bg:"bg-[#6366f1]/10",text:"text-[#6366f1]"},Vacuum:{bg:"bg-[#06b6d4]/10",text:"text-[#06b6d4]"},"Coffee Machine":{bg:"bg-[#d97706]/10",text:"text-[#d97706]"},"Hair Care":{bg:"bg-[#f43f5e]/10",text:"text-[#f43f5e]"},"Air Purifier":{bg:"bg-[#0ea5e9]/10",text:"text-[#0ea5e9]"},"Action Camera":{bg:"bg-[#ef4444]/10",text:"text-[#ef4444]"},Headphones:{bg:"bg-[#8b5cf6]/10",text:"text-[#8b5cf6]"},Speaker:{bg:"bg-[#f97316]/10",text:"text-[#f97316]"},"VR Headset":{bg:"bg-[#10b981]/10",text:"text-[#10b981]"}},xt={Sealed:"var(--brand)",Mint:"#22c55e",Good:"#f59e0b",Poor:"#9ca3af"};/* The plural of whatever this storefront calls the thing being sold.
+ *
+ * A refusal that says "we cannot buy a device" is vague where it most needs
+ * to be concrete, and the site already knows the right word: category labels
+ * are per-tenant, so the same Tablet row is an "iPad" on sellyouriphone and a
+ * "Galaxy Tab" on sellyourgalaxy. Reading the label means a new category is
+ * worded correctly the day it is switched on, with nothing to remember.
+ *
+ * Plural rather than singular because it is the only form that dodges the
+ * article problem: "an iPhone" and "a MacBook" differ, and "a AirPods" has no
+ * correct singular at all. "water damaged iPhones" works for every label.
+ *
+ * Only the last word inflects, so "Apple Watch" -> "Apple Watches" and
+ * "iMac / Mac" -> "iMac / Macs". Labels that are already plural are left
+ * alone. Case is preserved: lowercasing would produce "iphones".
+ *
+ * A label the rule cannot inflect ("Hair Care" would become "Hair Cares")
+ * sets `declineNoun` on the fault itself, which wins outright.
+ */
+function pluralItemNoun(label) {
+  const words = String(label || "").trim().split(/\s+/);
+  const last = words[words.length - 1] || "";
+  if (!last) return "devices";
+  let plural;
+  if (/s$/i.test(last)) plural = last;
+  else if (/(ch|sh|x|z)$/i.test(last)) plural = last + "es";
+  else if (/[^aeiou]y$/i.test(last)) plural = last.slice(0, -1) + "ies";
+  else plural = last + "s";
+  words[words.length - 1] = plural;
+  return words.join(" ");
+}
+
+function faultAppliesTo(k,mk){const inc=k.appliesTo,exc=k.excludes;if(Array.isArray(exc)&&exc.some(x=>mk.includes(String(x).toLowerCase())))return!1;if(Array.isArray(inc)&&inc.length)return inc.some(x=>mk.includes(String(x).toLowerCase()));return!0}
 export default function yt(){const[e,n]=m(s.CATEGORY),[a,l]=m(null),[bnd,setBnd]=m(null),[f,p]=m(!0),[i,u]=m(null),[r,b]=m(null),[A,x]=m(""),[g,z]=m(null),[T,v]=m(null),[j,c]=m(null),[qNote,setQNote]=m(null),[w,R]=m(null),[P,Te]=m(null),[ze,G]=m([]),[Se,H]=m([]),[J,Z]=m(""),[Ee,X]=m(""),[Ue,Ae]=m({faultDeductionTotal:0,appliedFaults:[],pendingReviewFaults:[]}),[ke,we]=m([]),[Ce,ve]=m(""),[M,qe]=m("consignment"),[D,ee]=m([]),[We,Y]=m(!1),[De,L]=m(null),[Oe,Fe]=m({fullName:"",phone:"",email:"",address:"",suburb:"",city:"",province:"",postalCode:"",residentialAddress:!0,preferredCollectionDate:"",notes:"",idNumber:"",ageConfirmed:!1,termsAccepted:!1,privacyAccepted:!1,idDocumentPath:"",selfiePath:"",bankName:"",accountType:"",branchCode:"",accountNumber:"",website:""}),[Ve,Qe]=m({status:"idle",fileName:"",error:null}),[Ke,He]=m({status:"idle",fileName:"",error:null}),[Je,Pe]=m(!1),[Ze,Xe]=m(null),[cpn,setCpn]=m(null),[cpnIn,setCpnIn]=m(""),[cpnErr,setCpnErr]=m(null),[cpnBusy,setCpnBusy]=m(!1),Le=le(null),te=le(null),ye=le(!1);_(()=>{Le.current=Date.now()},[]),_(()=>{console.log("%cPsst, poking around the code?","color:#00a2ff;font-weight:bold;font-size:14px;"),console.log("We like that. If you build things too, say hi: sell@epicdeals.co.za")},[]),_(()=>{if(!te.current||typeof ResizeObserver>"u")return;const t=te.current,o=()=>{window.parent?.postMessage({type:"epic-calc-resize",height:t.scrollHeight},"*")},d=new ResizeObserver(o);return d.observe(t),o(),()=>d.disconnect()},[e,a,r,j,D]),_(()=>{fetch(V("/api/categories")).then(t=>t.json()).then(t=>{if(t.error)throw new Error(t.error);l(t.categories),setBnd(t.brand||null)}).catch(t=>L(t.message)).finally(()=>p(!1)),fetch("/api/settings").then(t=>t.json()).then(t=>{if(t.error)throw new Error(t.error);u(t)}).catch(t=>L(t.message))},[]),_(()=>{e===s.CATEGORY&&!f&&a&&a.length===1&&D.length===0&&!ye.current&&(ye.current=!0,et(a[0]))},[e,f,a]);function et(t){z(t),b(null),x(""),Y(!0),L(null),fetch(V(`/api/models?type=${encodeURIComponent(t.type)}`)).then(o=>o.json()).then(o=>{if(o.error)throw new Error(o.error);const d=[...o.models].sort((k,N)=>k.label.localeCompare(N.label));b(d),n(s.MODEL)}).catch(o=>L(o.message)).finally(()=>Y(!1))}function tt(t){v(t),c(null),R(null),setQNote(null),Y(!0),L(null),fetch(V(`/api/quote?model=${encodeURIComponent(t.model)}`)).then(o=>o.json()).then(o=>{if(o.error)throw new Error(o.error);c(o.capacities),setQNote(o.notice||null),o.capacities.length===1&&R(o.capacities[0]),n(s.QUOTE)}).catch(o=>L(o.message)).finally(()=>Y(!1))}/* Fault rules are keyed by category, and a category is not always one kind
    of thing: Desktop spans iMacs and Studio Displays, which have screens,
    and Mac minis and Mac Studios, which do not. Earphone spans in-ear buds
@@ -70,7 +102,7 @@ function U(t,o){const mk=(T?.model||"").toLowerCase();return(i?.conditionFaults?
 
         {e===s.QUOTE&&<Dt model={T}capacities={j}notice={qNote}activeCapacity={w}onChooseCapacity={R}onChooseCondition={ot}onBack={()=>n(s.MODEL)}/>}
 
-        {e===s.FAULTS&&<Ft brand={bnd}conditionRaw={P?.conditionRaw}faultRules={U(g?.type,P?.conditionRaw)}selectedFaultKeys={Se}onToggleFault={t=>H(o=>o.includes(t)?o.filter(d=>d!==t):[...o,t])}batteryPctInput={J}onBatteryPctChange={Z}showFreeText={q(g?.type,P?.conditionRaw)}faultDescription={Ee}onFaultDescriptionChange={X}onContinue={at}onBack={()=>n(s.QUOTE)}/>}
+        {e===s.FAULTS&&<Ft brand={bnd}itemNoun={pluralItemNoun(g?.label)}conditionRaw={P?.conditionRaw}faultRules={U(g?.type,P?.conditionRaw)}selectedFaultKeys={Se}onToggleFault={t=>H(o=>o.includes(t)?o.filter(d=>d!==t):[...o,t])}batteryPctInput={J}onBatteryPctChange={Z}showFreeText={q(g?.type,P?.conditionRaw)}faultDescription={Ee}onFaultDescriptionChange={X}onContinue={at}onBack={()=>n(s.QUOTE)}/>}
 
         {e===s.ACCESSORIES&&<Ot config={g.accessoryOptions}selected={ze}onToggle={t=>G(o=>{if(t==="__none__")return["__none__"];const d=o.filter(k=>k!=="__none__");return d.includes(t)?d.filter(k=>k!==t):[...d,t]})}onContinue={()=>{if(g.extraAccessoryOptions){we([]),ve(""),n(s.EXTRAS)}else oe(P,ze,Ue)}}onBack={()=>n(st())}/>}
 
@@ -232,7 +264,7 @@ function U(t,o){const mk=(T?.model||"").toLowerCase();return(i?.conditionFaults?
       <button type="button"onClick={u}className="mt-1 w-full rounded-xl border border-line bg-card px-4 py-3 text-base font-medium text-fg shadow-sm transition hover:border-brand hover:bg-canvas">
         Skip, no extras
       </button>
-    </div>}function Ft({brand:et,conditionRaw:Qe,faultRules:e,selectedFaultKeys:n,onToggleFault:a,batteryPctInput:l,onBatteryPctChange:f,showFreeText:p,faultDescription:i,onFaultDescriptionChange:u,onContinue:r,onBack:b}){const A=e.find(v=>v.type==="battery_threshold"),x=e.filter(v=>v.type==="checkbox"),g=x.find(v=>v.decline&&n.includes(v.key)),gB=!!g&&g.blocks!==!1,Un=n.length>0||!!(p&&i.trim()),[z,T]=m(!!A),
+    </div>}function Ft({brand:et,itemNoun,conditionRaw:Qe,faultRules:e,selectedFaultKeys:n,onToggleFault:a,batteryPctInput:l,onBatteryPctChange:f,showFreeText:p,faultDescription:i,onFaultDescriptionChange:u,onContinue:r,onBack:b}){const A=e.find(v=>v.type==="battery_threshold"),x=e.filter(v=>v.type==="checkbox"),g=x.find(v=>v.decline&&n.includes(v.key)),gB=!!g&&g.blocks!==!1,Un=n.length>0||!!(p&&i.trim()),[z,T]=m(!!A),
 /* Excellent pays a premium for a device that is genuinely nearly new, and
    the grade itself already asserts "no faults" -- so instead of a fault
    list it takes an explicit confirmation, and says out loud that most used
@@ -293,7 +325,7 @@ Je=Qe==="Mint",[Ze,Xe]=m(!1);return A&&z?<div className="space-y-2">
         </div>}
 
       {g?<p className={`rounded-lg px-4 py-3 text-base ${gB?"border border-danger-line bg-danger-bg font-medium text-danger":"border border-warn-line bg-warn-bg text-fg"}`}>
-          {g.declineMessage||"We are not able to buy a device in this condition. If you selected that by mistake, please go back and choose the condition that matches."}
+          {(g.declineMessage||"We are not able to buy {item} in this condition. If you selected that by mistake, please go back and choose the condition that matches.").replace(/\{item\}/g,g.declineNoun||itemNoun||"devices")}
         </p>:(x.length>0||p)&&<p className="px-1 pt-1 text-sm text-muted">
           {Je?"Leave it unticked if it does not apply.":"Select anything that applies. What we take off is our estimate from your description, and it is usually close. We check it against the device when it reaches us, then come back to you with a firm offer. Nothing to report? Just hit continue."}
         </p>}
