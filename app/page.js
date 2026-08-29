@@ -43,7 +43,23 @@
       <rect x="5" y="2.5" width="14" height="19" rx="2"/><circle cx="12" cy="15" r="3.5"/><circle cx="12" cy="7" r="1.2"/>
     </svg>,"VR Headset":<svg viewBox="0 0 24 24"fill="none"stroke="currentColor"strokeWidth="1.6"strokeLinecap="round"strokeLinejoin="round">
       <rect x="2" y="7" width="20" height="10" rx="3"/><path d="M9.5 17c.6 1.2 1.4 1.8 2.5 1.8s1.9-.6 2.5-1.8"/><path d="M2 10h-.5"/><path d="M22 10h.5"/>
-    </svg>},Q={Phone:{bg:"bg-brand/10",text:"text-brand"},Laptop:{bg:"bg-[#7c6ff0]/10",text:"text-[#7c6ff0]"},Desktop:{bg:"bg-[#14b8a6]/10",text:"text-[#14b8a6]"},Tablet:{bg:"bg-[#ec4899]/10",text:"text-[#ec4899]"},Watch:{bg:"bg-[#f59e0b]/10",text:"text-[#f59e0b]"},Earphone:{bg:"bg-[#22c55e]/10",text:"text-[#22c55e]"},Console:{bg:"bg-[#6366f1]/10",text:"text-[#6366f1]"},Vacuum:{bg:"bg-[#06b6d4]/10",text:"text-[#06b6d4]"},"Coffee Machine":{bg:"bg-[#d97706]/10",text:"text-[#d97706]"},"Hair Care":{bg:"bg-[#f43f5e]/10",text:"text-[#f43f5e]"},"Air Purifier":{bg:"bg-[#0ea5e9]/10",text:"text-[#0ea5e9]"},"Action Camera":{bg:"bg-[#ef4444]/10",text:"text-[#ef4444]"},Headphones:{bg:"bg-[#8b5cf6]/10",text:"text-[#8b5cf6]"},Speaker:{bg:"bg-[#f97316]/10",text:"text-[#f97316]"},"VR Headset":{bg:"bg-[#10b981]/10",text:"text-[#10b981]"}},xt={Sealed:"var(--brand)",Mint:"#22c55e",Good:"#f59e0b",Poor:"#9ca3af"};/* The plural of whatever this storefront calls the thing being sold.
+    </svg>},Q={Phone:{bg:"bg-brand/10",text:"text-brand"},Laptop:{bg:"bg-[#7c6ff0]/10",text:"text-[#7c6ff0]"},Desktop:{bg:"bg-[#14b8a6]/10",text:"text-[#14b8a6]"},Tablet:{bg:"bg-[#ec4899]/10",text:"text-[#ec4899]"},Watch:{bg:"bg-[#f59e0b]/10",text:"text-[#f59e0b]"},Earphone:{bg:"bg-[#22c55e]/10",text:"text-[#22c55e]"},Console:{bg:"bg-[#6366f1]/10",text:"text-[#6366f1]"},Vacuum:{bg:"bg-[#06b6d4]/10",text:"text-[#06b6d4]"},"Coffee Machine":{bg:"bg-[#d97706]/10",text:"text-[#d97706]"},"Hair Care":{bg:"bg-[#f43f5e]/10",text:"text-[#f43f5e]"},"Air Purifier":{bg:"bg-[#0ea5e9]/10",text:"text-[#0ea5e9]"},"Action Camera":{bg:"bg-[#ef4444]/10",text:"text-[#ef4444]"},Headphones:{bg:"bg-[#8b5cf6]/10",text:"text-[#8b5cf6]"},Speaker:{bg:"bg-[#f97316]/10",text:"text-[#f97316]"},"VR Headset":{bg:"bg-[#10b981]/10",text:"text-[#10b981]"}},xt={Sealed:"var(--brand)",Mint:"#22c55e",Good:"#f59e0b",Poor:"#9ca3af"};/* Words that keep their capital in a sentence because they are names, not
+   categories. Everything else in a label is title case only because it is a
+   menu item, and reads wrong mid-sentence: "water damaged Coffee Machines".
+   An unknown name here is lowercased, which is a cosmetic slip rather than a
+   wrong answer, and `declineNoun` on the fault overrides the whole thing. */
+const PROPER_LABEL_WORDS = new Set([
+  "apple", "galaxy", "mac", "macs", "note", "pixel", "xbox", "nintendo",
+  "playstation", "dyson", "sonos", "bose", "meta",
+]);
+
+function keepsItsCapital(word) {
+  if (/[a-z][A-Z]/.test(word)) return true;  // iPhone, MacBook, AirPods, iMac
+  if (/^[^a-z]*$/.test(word)) return true;   // VR, and the "/" in iMac / Mac
+  return PROPER_LABEL_WORDS.has(word.toLowerCase());
+}
+
+/* The plural of whatever this storefront calls the thing being sold.
  *
  * A refusal that says "we cannot buy a device" is vague where it most needs
  * to be concrete, and the site already knows the right word: category labels
@@ -57,12 +73,19 @@
  *
  * Only the last word inflects, so "Apple Watch" -> "Apple Watches" and
  * "iMac / Mac" -> "iMac / Macs". Labels that are already plural are left
- * alone. Case is preserved: lowercasing would produce "iphones".
+ * alone.
+ *
+ * Then the case is corrected, because a label is written for a menu and this
+ * is a sentence: "Coffee Machine" -> "coffee machines". A label that STARTS
+ * with a brand keeps its capitals throughout, because it is a product name
+ * rather than a category -- "Galaxy Tabs" and "Apple Watches", not "Galaxy
+ * tabs". "VR" is an initialism and not a brand, so it keeps its own capitals
+ * without protecting the rest: "VR headsets".
  *
  * A label the rule cannot inflect ("Hair Care" would become "Hair Cares")
  * sets `declineNoun` on the fault itself, which wins outright.
  */
-function pluralItemNoun(label) {
+function itemNounFor(label) {
   const words = String(label || "").trim().split(/\s+/);
   const last = words[words.length - 1] || "";
   if (!last) return "devices";
@@ -72,7 +95,10 @@ function pluralItemNoun(label) {
   else if (/[^aeiou]y$/i.test(last)) plural = last.slice(0, -1) + "ies";
   else plural = last + "s";
   words[words.length - 1] = plural;
-  return words.join(" ");
+  const isProductName = PROPER_LABEL_WORDS.has(words[0].toLowerCase());
+  return words
+    .map((w) => (isProductName || keepsItsCapital(w) ? w : w.toLowerCase()))
+    .join(" ");
 }
 
 function faultAppliesTo(k,mk){const inc=k.appliesTo,exc=k.excludes;if(Array.isArray(exc)&&exc.some(x=>mk.includes(String(x).toLowerCase())))return!1;if(Array.isArray(inc)&&inc.length)return inc.some(x=>mk.includes(String(x).toLowerCase()));return!0}
@@ -102,7 +128,7 @@ function U(t,o){const mk=(T?.model||"").toLowerCase();return(i?.conditionFaults?
 
         {e===s.QUOTE&&<Dt model={T}capacities={j}notice={qNote}activeCapacity={w}onChooseCapacity={R}onChooseCondition={ot}onBack={()=>n(s.MODEL)}/>}
 
-        {e===s.FAULTS&&<Ft brand={bnd}itemNoun={pluralItemNoun(g?.label)}conditionRaw={P?.conditionRaw}faultRules={U(g?.type,P?.conditionRaw)}selectedFaultKeys={Se}onToggleFault={t=>H(o=>o.includes(t)?o.filter(d=>d!==t):[...o,t])}batteryPctInput={J}onBatteryPctChange={Z}showFreeText={q(g?.type,P?.conditionRaw)}faultDescription={Ee}onFaultDescriptionChange={X}onContinue={at}onBack={()=>n(s.QUOTE)}/>}
+        {e===s.FAULTS&&<Ft brand={bnd}itemNoun={itemNounFor(g?.label)}conditionRaw={P?.conditionRaw}faultRules={U(g?.type,P?.conditionRaw)}selectedFaultKeys={Se}onToggleFault={t=>H(o=>o.includes(t)?o.filter(d=>d!==t):[...o,t])}batteryPctInput={J}onBatteryPctChange={Z}showFreeText={q(g?.type,P?.conditionRaw)}faultDescription={Ee}onFaultDescriptionChange={X}onContinue={at}onBack={()=>n(s.QUOTE)}/>}
 
         {e===s.ACCESSORIES&&<Ot config={g.accessoryOptions}selected={ze}onToggle={t=>G(o=>{if(t==="__none__")return["__none__"];const d=o.filter(k=>k!=="__none__");return d.includes(t)?d.filter(k=>k!==t):[...d,t]})}onContinue={()=>{if(g.extraAccessoryOptions){we([]),ve(""),n(s.EXTRAS)}else oe(P,ze,Ue)}}onBack={()=>n(st())}/>}
 
