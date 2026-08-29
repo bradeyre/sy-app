@@ -232,9 +232,18 @@ function U(t,o){const mk=(T?.model||"").toLowerCase();return(i?.conditionFaults?
       <p className="mb-2 text-base font-medium text-muted">Which {e.label} do you have?</p>
       {!a&&n&&n.length>8&&<input type="text"autoFocus value={l}onChange={r=>f(r.target.value)}placeholder={`Search ${n.length} ${e.label} models…`}className="mb-2 w-full rounded-xl border border-line bg-card px-4 py-3 text-base text-fg focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"/>}
       {a&&<Ce rows={5}/>}
-      {!a&&u?.map(r=><Ne key={r.model}onClick={()=>p(r)}>
+      {/* A long list scrolls inside itself rather than stretching the frame.
+          Sixty-odd iPhones rendered in full made this step 2246px against
+          452px for the next one, so picking a model collapsed the embedding
+          page by about 1800px and threw away wherever the visitor had
+          scrolled to. Capped, every step sits in the same band and the page
+          barely moves. Only long lists are capped, so a category with a
+          handful of models still renders as a plain list. */}
+      {!a&&<div className={n&&n.length>8?"max-h-[26rem] space-y-2 overflow-y-auto overscroll-contain pr-1":"space-y-2"}>
+        {u?.map(r=><Ne key={r.model}onClick={()=>p(r)}>
             {r.label}
           </Ne>)}
+      </div>}
       {!a&&u&&u.length===0&&<p className="px-1 py-4 text-base text-muted">
           No match for &quot;{l}&quot;, try a shorter search, or go back and check the category.
         </p>}
