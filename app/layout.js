@@ -3,6 +3,20 @@ import { headers } from "next/headers";
 import { getSiteConfig } from "@/lib/siteConfig";
 import "./globals.css";
 
+/*
+ * Run the server work in Frankfurt.
+ *
+ * Measured 2026-08-30 from South Africa: a request entered Vercel at the Cape
+ * Town edge and was served from iad1, Washington DC, while the database sits
+ * in eu-central-1, Frankfurt. Every render therefore crossed the Atlantic
+ * twice for data that was already in Europe. The page took 1.28s to first
+ * byte and the two calls the calculator makes on mount took 0.55s and 0.64s,
+ * so roughly two seconds passed before a visitor saw the first category.
+ *
+ * Frankfurt puts the compute next to the data, and is also closer to South
+ * Africa than Washington is. `regions` in vercel.json applies it to every
+ * route, including the API handlers, which is where most of that time went.
+ */
 export const dynamic = "force-dynamic";
 
 /**
