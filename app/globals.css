@@ -187,8 +187,57 @@
     --wash: color-mix(in srgb, var(--brand) 20%, var(--bg));
 }
 
-/* sellyouriphone, sellyourconsole, epicdeals and sellyourgalaxy all run the
-   group blue, which is the base value, so they need no override block. */
+/* Epic Deals frames this on a white WordPress page whose own accent is
+   #1e73be and whose body colour is #161616, in a section that used to end
+   abruptly where the calculator's grey ground began. Three things follow.
+
+   The accent matches the host, which also fixes a contrast problem the group
+   blue had here: white on #00a2ff is about 2.3:1, white on #1e73be is 4.9:1.
+
+   The ground goes white. The default grey is right on the storefronts, whose
+   own pages are that grey, and wrong here -- it painted a full-width slab
+   that announced the iframe. On white the frame disappears and the cards
+   carry the structure, so the border firms up slightly to compensate for
+   white-on-white.
+
+   And the text takes the host's own #161616 rather than the group's near-navy,
+   so a paragraph inside the frame and one above it are the same colour. */
+:root[data-site="epicdeals"] {
+  --brand: #1e73be;
+  --brand-600: #17588f;
+  --wash: #e9f2fb;
+  --page: #ffffff;
+  --canvas: #f5f7fa;
+  --border: #d9e0e9;
+  --fg: #161616;
+}
+
+/* The page is light-only and the embed pins theme=light, so this exists only
+   for anyone who opens the tenant directly on a dark OS. */
+@media (prefers-color-scheme: dark) {
+  :root[data-site="epicdeals"]:not([data-theme="light"]) {
+    --brand: #4d9de0;
+    --brand-600: #7ab8ea;
+    --wash: color-mix(in srgb, var(--brand) 20%, var(--bg));
+    --page: #08090c;
+    --canvas: #101218;
+    --border: #23262f;
+    --fg: #f4f6fa;
+  }
+}
+
+:root[data-site="epicdeals"][data-theme="dark"] {
+  --brand: #4d9de0;
+  --brand-600: #7ab8ea;
+  --wash: color-mix(in srgb, var(--brand) 20%, var(--bg));
+  --page: #08090c;
+  --canvas: #101218;
+  --border: #23262f;
+  --fg: #f4f6fa;
+}
+
+/* sellyouriphone, sellyourconsole and sellyourgalaxy all run the group blue,
+   which is the base value, so they need no override block. */
 
 /* Painted here rather than as a utility on <body>: Tailwind's utilities sit
    in a cascade layer, so an unlayered rule like this one wins over
@@ -386,4 +435,43 @@ the sequence feels alive rather than just text flicking. */
   .skeleton-shimmer {
     animation: none;
   }
+}
+
+/* The surfaces we did not draw. A selection highlight, a caret and a
+   scrollbar all ship with defaults that belong to no design system, and the
+   model list is a real scroll region now that long lists are capped, so its
+   scrollbar is on screen rather than theoretical. */
+::selection {
+  background: var(--wash);
+  color: var(--fg);
+}
+
+:root {
+  accent-color: var(--brand);
+  caret-color: var(--brand);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: var(--border);
+  border: 3px solid transparent;
+  background-clip: content-box;
+  border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: var(--muted);
 }

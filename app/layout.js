@@ -31,7 +31,7 @@ const satoshi = localFont({
  * key here with no matching block (or the reverse) is simply a no-op, not a
  * break -- the site falls back to the group blue.
  */
-const THEMED_SITES = ["sellyourmac"];
+const THEMED_SITES = ["sellyourmac", "epicdeals"];
 
 /**
  * Corrects `data-site` from `?site=` before first paint.
