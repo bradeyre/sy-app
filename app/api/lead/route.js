@@ -250,6 +250,7 @@ export async function POST(request) {
           province,
           residentialAddress: residentialAddress !== false,
           preferredCollectionDate,
+          notes,
           idNumber,
           idDocumentPath,
           selfiePath,
