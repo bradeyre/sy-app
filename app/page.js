@@ -673,11 +673,12 @@ function It({total:e,items:n,paymentLabel:a,onContinue:l,onBack:f,coupon:S,coupo
           <input type="checkbox"required checked={e.termsAccepted}onChange={c=>n(w=>({...w,termsAccepted:c.target.checked}))}className="mt-0.5 h-4 w-4 rounded border-line text-brand focus:ring-brand"/>
           <span>
             I accept the{" "}
-            <a href="https://sellyouriphone.co.za/terms-and-conditions-2/"target="_blank"rel="noreferrer"className="text-brand hover:underline">
+            {/* One terms document per tenant, served by this app (lib/terms.js). Both links land on it: buy-back and consignment are its two sections. */}
+            <a href={V("/terms")}target="_blank"rel="noreferrer"className="text-brand hover:underline">
               buy-back terms
             </a>{" "}
             and{" "}
-            <a href="https://sellyouriphone.co.za/consignment-terms-and-conditions-2/"target="_blank"rel="noreferrer"className="text-brand hover:underline">
+            <a href={V("/terms")+"#consignment"}target="_blank"rel="noreferrer"className="text-brand hover:underline">
               consignment terms
             </a>
             .
