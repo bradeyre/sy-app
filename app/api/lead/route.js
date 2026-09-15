@@ -225,7 +225,10 @@ export async function POST(request) {
     // make sure the Airtable record it writes has the fields that template
     // needs. after() (backed by Vercel's waitUntil) keeps the customer's
     // success screen fast while guaranteeing the sync actually runs to
-    // completion instead of racing the response.
+    // completion instead of racing the response. Failures stay off the
+    // customer path: they are logged as JSON and written onto calc.leads
+    // (airtable_record_id / airtable_sync_error) so they can be replayed
+    // with replayLeadToAirtable(id).
     if (coupon) {
       after(() =>
         recordRedemption({
@@ -240,6 +243,7 @@ export async function POST(request) {
 
     after(() =>
       syncLeadToAirtable({
+        leadId: rows[0].id,
         lead: {
           fullName,
           phone,
@@ -251,6 +255,7 @@ export async function POST(request) {
           residentialAddress: residentialAddress !== false,
           preferredCollectionDate,
           notes,
+          quoteRef: reference,
           idNumber,
           idDocumentPath,
           selfiePath,
@@ -270,7 +275,16 @@ export async function POST(request) {
         },
         items: validatedItems,
         brand: site.where?.brand || "",
-      }).catch((err) => console.error("syncLeadToAirtable unexpected error", err))
+      }).catch((err) =>
+        console.error(
+          JSON.stringify({
+            event: "airtable_sync_failed",
+            leadId: rows[0].id,
+            quoteRef: reference,
+            error: String(err?.message || err),
+          })
+        )
+      )
     );
 
     return NextResponse.json({ ok: true, id: rows[0].id, reference });
