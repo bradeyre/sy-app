@@ -61,6 +61,10 @@
       if (e.origin !== ORIGIN) return;
       if (e.source !== frame.contentWindow) return;
       var data = e.data;
+      // { type: "epic-calc-lead", reference, site, total } is posted once
+      // per successful submit. This script does not fire fbq/gtag; host
+      // pages that want Meta LEAD + GA4 conversions should listen for
+      // that type themselves.
       if (!data || data.type !== "epic-calc-resize") return;
       var next = data.height;
       if (typeof next !== "number" || next <= 0) return;
