@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Unit tests
+        run: npm test
+
+  # Production host-page contract. Fails when a reachable page has
+  # data-sym-calculator without sym-calculator.vercel.app/embed.js.
+  # If GitHub cannot reach the site (Cloudflare / network), the script
+  # exits 0 and prints SKIP — that is not a healthy production signal.
+  live-host-embeds:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Probe host pages
+        run: npm run test:live-embeds
