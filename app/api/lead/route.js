@@ -240,6 +240,7 @@ export async function POST(request) {
 
     after(() =>
       syncLeadToAirtable({
+        leadId: rows[0].id,
         lead: {
           fullName,
           phone,
@@ -251,6 +252,7 @@ export async function POST(request) {
           residentialAddress: residentialAddress !== false,
           preferredCollectionDate,
           notes,
+          quoteRef: reference,
           idNumber,
           idDocumentPath,
           selfiePath,
@@ -262,7 +264,10 @@ export async function POST(request) {
           branchCode,
           accountNumber,
           paymentPreference,
-          paymentBonusPct,
+          // Server-validated bonus (revalidateLeadPricing), never the raw
+          // client figure. This is what Quoted Value and Payment Preference
+          // mapping must use so ops sees the same money the customer saw.
+          paymentBonusPct: serverBonusPct,
           siteDomain: site.domain,
           airtableSource: site.airtableSource,
           couponCode: coupon?.code ?? null,
@@ -270,7 +275,16 @@ export async function POST(request) {
         },
         items: validatedItems,
         brand: site.where?.brand || "",
-      }).catch((err) => console.error("syncLeadToAirtable unexpected error", err))
+      }).catch((err) =>
+        console.error(
+          JSON.stringify({
+            event: "airtable_sync_failed",
+            leadId: rows[0].id,
+            quoteRef: reference,
+            error: String(err?.message || err),
+          })
+        )
+      )
     );
 
     return NextResponse.json({ ok: true, id: rows[0].id, reference });
