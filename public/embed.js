@@ -13,8 +13,8 @@
  * a deploy here rather than an edit in WordPress on a site where editing is
  * evidently fragile.
  *
- * Usage, anywhere:
- *   <div data-sym-calculator data-site="epicdeals" data-theme="light"></div>
+ * Usage, anywhere (both lines; the mount alone is a blank calculator):
+ *   <div data-sym-calculator data-site="epicdeals" data-theme="light" style="min-height:720px"></div>
  *   <script src="https://sym-calculator.vercel.app/embed.js" defer></script>
  *
  * data-site  the tenant key (required to get anything but the default site)
