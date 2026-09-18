@@ -160,7 +160,7 @@
   font-weight: 700;
   letter-spacing: -0.038em;
   line-height: 1.08;
-  max-width: 13ch;
+  max-width: 18ch;
 }
 
 .ep-lede {
@@ -275,6 +275,12 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 0.75rem;
+}
+
+@media (max-width: 959px) {
+  .ep-art figure:nth-child(n + 4) {
+    display: none;
+  }
 }
 
 .ep-art figure {
