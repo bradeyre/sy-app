@@ -1,14 +1,19 @@
 import PilotForm from "./PilotForm";
 import {
+  AWKWARD,
   CANONICAL_URL,
   ECONOMICS,
+  EMBED,
   FAQ,
+  HERO,
+  HOW,
   HOW_STEPS,
   NEVER_ITEMS,
   OG_IMAGE_PATH,
   PREVIEW_ORIGIN,
   PROOF_STATS,
   SEO,
+  WHO,
   buildJsonLd,
 } from "@/lib/partnersTradeIn";
 
@@ -68,11 +73,8 @@ export default function PartnersTradeInPage() {
           <section className="ep-hero">
             <div className="ep-wrap ep-hero-grid">
               <div>
-                <h1 className="ep-h1">Let them pay with the tech they already own.</h1>
-                <p className="ep-lede">
-                  Your storefront. Our buyback engine. They sell a MacBook, you sell a
-                  couch, everybody moves.
-                </p>
+                <h1 className="ep-h1">{HERO.h1}</h1>
+                <p className="ep-lede">{HERO.lede}</p>
                 <p className="ep-proof">
                   <span>Trading since 2014</span>
                   <span>R90m+ paid to South Africans for old tech</span>
@@ -97,12 +99,8 @@ export default function PartnersTradeInPage() {
 
           <section className="ep-band ep-band--canvas">
             <div className="ep-wrap">
-              <h2 className="ep-h2">The awkward truth</h2>
-              <p className="ep-copy">
-                Most carts die because the money feels stuck in last year&apos;s phone.
-                Trade-in as payment unlocks that liquidity at checkout, not after a
-                separate sell-then-buy dance.
-              </p>
+              <h2 className="ep-h2">{AWKWARD.h2}</h2>
+              <p className="ep-copy">{AWKWARD.body}</p>
             </div>
           </section>
 
@@ -110,12 +108,9 @@ export default function PartnersTradeInPage() {
             <div className="ep-wrap">
               <div className="ep-section-head">
                 <h2 className="ep-h2" id="how-heading">
-                  How it works from your side
+                  {HOW.h2}
                 </h2>
-                <p className="ep-copy">
-                  Inventory liquidation at checkout. Not upgrade financing against a
-                  new phone.
-                </p>
+                <p className="ep-copy">{HOW.body}</p>
               </div>
               <div className="ep-steps">
                 {HOW_STEPS.map((step) => (
@@ -153,18 +148,12 @@ export default function PartnersTradeInPage() {
               </div>
               <div className="ep-split">
                 <article className="ep-card">
-                  <h3>Retail with a real ticket</h3>
-                  <p>
-                    Furniture, appliances, fashion, specialty retail, e-comm with AOV
-                    high enough that a used phone or laptop meaningfully closes the gap.
-                  </p>
+                  <h3>{WHO.yesTitle}</h3>
+                  <p>{WHO.yesBody}</p>
                 </article>
                 <article className="ep-card ep-who--not">
-                  <h3>Not phone-upgrade financing</h3>
-                  <p>
-                    That is a different game. We do not pretend to be Breezy, and we
-                    will not claim to beat them on new-phone trade-in credit.
-                  </p>
+                  <h3>{WHO.noTitle}</h3>
+                  <p>{WHO.noBody}</p>
                 </article>
               </div>
             </div>
@@ -192,12 +181,9 @@ export default function PartnersTradeInPage() {
             <div className="ep-wrap">
               <div className="ep-section-head">
                 <h2 className="ep-h2" id="embed-heading">
-                  Your colours. Our engine.
+                  {EMBED.h2}
                 </h2>
-                <p className="ep-copy">
-                  The live calculator already embeds on partner-style pages. A partner
-                  key keeps the quote engine ours and the chrome yours.
-                </p>
+                <p className="ep-copy">{EMBED.body}</p>
               </div>
               <div className="ep-embed" aria-hidden="true">
                 <div className="ep-embed-bar">
@@ -208,10 +194,11 @@ export default function PartnersTradeInPage() {
                 </div>
                 <div className="ep-embed-body">
                   <div className="ep-chip-row">
-                    <span className="ep-chip">Phone</span>
-                    <span className="ep-chip">MacBook</span>
-                    <span className="ep-chip">Galaxy</span>
-                    <span className="ep-chip">Console</span>
+                    {EMBED.chips.map((chip) => (
+                      <span className="ep-chip" key={chip}>
+                        {chip}
+                      </span>
+                    ))}
                   </div>
                   <div className="ep-embed-cta">Get an instant offer</div>
                 </div>
@@ -310,6 +297,25 @@ function DeviceArt() {
           <circle cx="32" cy="18" r="1.4" fill="currentColor" stroke="none" />
           <circle cx="28" cy="22" r="1.4" fill="currentColor" stroke="none" />
           <path d="M9 20c-4 0-6 4-5.5 8S7 36 11 36c2.4 0 3.2-2 5-3.4 1.4-1 3-1.6 4.6-1.6h7c1.6 0 3.2.6 4.6 1.6 1.8 1.4 2.6 3.4 5 3.4 4 0 6.8-4 7.3-8S43 20 39 20z" />
+        </svg>
+      </figure>
+      <figure>
+        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
+          <rect x="17" y="12" width="14" height="18" rx="4" />
+          <path d="M21 8h6M21 34h6M24 18v5h4" />
+        </svg>
+      </figure>
+      <figure>
+        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
+          <path d="M20 8h8l6 18H14z" />
+          <rect x="10" y="26" width="28" height="10" rx="3" />
+        </svg>
+      </figure>
+      <figure>
+        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
+          <rect x="8" y="16" width="32" height="20" rx="3" />
+          <circle cx="24" cy="26" r="6" />
+          <path d="M16 16l2-5h12l2 5" />
         </svg>
       </figure>
     </div>
