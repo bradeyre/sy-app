@@ -342,20 +342,6 @@
   .ep-steps {
     grid-template-columns: repeat(2, 1fr);
   }
-
-  .ep-steps article:last-child {
-    grid-column: 1 / -1;
-  }
-}
-
-@media (min-width: 1100px) {
-  .ep-steps {
-    grid-template-columns: repeat(5, 1fr);
-  }
-
-  .ep-steps article:last-child {
-    grid-column: auto;
-  }
 }
 
 .ep-card {

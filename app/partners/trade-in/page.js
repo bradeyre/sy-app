@@ -45,7 +45,7 @@ export default function PartnersTradeInPage() {
   const jsonLd = buildJsonLd();
 
   return (
-    <div className="ep">
+    <div className="ep" lang="en-ZA">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

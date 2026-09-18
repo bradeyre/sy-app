@@ -4,17 +4,13 @@ import "./partners.css";
  * Preview-only shell for /partners/trade-in.
  *
  * Production is the WordPress page at epicdeals.co.za/partners/trade-in/.
- * Pin light + group blue here so a dark OS or an epicdeals host (which
+ * Tokens are scoped to `.ep` so a dark OS or an epicdeals host (which
  * otherwise sets data-site and #1e73be) cannot restyle this lander or
  * leak into the calculator embed on `/`.
+ *
+ * Do not mutate <html> here. An inline script that sets lang / data-theme
+ * races React hydration on the root layout and paints the Next overlay.
  */
-const PIN_LIGHT = `(function(){var r=document.documentElement;r.lang="en-ZA";r.setAttribute("data-theme","light");r.removeAttribute("data-site");})();`;
-
 export default function PartnersTradeInLayout({ children }) {
-  return (
-    <>
-      <script dangerouslySetInnerHTML={{ __html: PIN_LIGHT }} />
-      {children}
-    </>
-  );
+  return children;
 }
