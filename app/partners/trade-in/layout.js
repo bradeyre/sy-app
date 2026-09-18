@@ -3,7 +3,7 @@ import "./partners.css";
 /**
  * Preview-only shell for /partners/trade-in.
  *
- * Production is the WordPress page at epicdeals.co.za/partners/trade-in/.
+ * Production is WordPress at epicdeals.co.za/partners/trade-in-as-payment/.
  * Tokens are scoped to `.ep` so a dark OS or an epicdeals host (which
  * otherwise sets data-site and #1e73be) cannot restyle this lander or
  * leak into the calculator embed on `/`.

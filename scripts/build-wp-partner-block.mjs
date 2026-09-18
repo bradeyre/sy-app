@@ -34,8 +34,8 @@ ${css}
       <section class="ep-hero">
         <div class="ep-wrap ep-hero-grid">
           <div>
-            <h1 class="ep-h1">Let them pay with the tech they already own.</h1>
-            <p class="ep-lede">Your storefront. Our buyback engine. They sell a MacBook, you sell a couch, everybody moves.</p>
+            <h1 class="ep-h1">Pay with the stuff they already own.</h1>
+            <p class="ep-lede">A payment method, not a phone-upgrade side quest. They put the Dyson, the GoPro, the old PlayStation on the bill. You sell the couch.</p>
             <p class="ep-proof">
               <span>Trading since 2014</span>
               <span>R90m+ paid to South Africans for old tech</span>
@@ -56,6 +56,15 @@ ${css}
             <figure>
               <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M10 18h8M14 14v8"/><circle cx="32" cy="18" r="1.4" fill="currentColor" stroke="none"/><circle cx="28" cy="22" r="1.4" fill="currentColor" stroke="none"/><path d="M9 20c-4 0-6 4-5.5 8S7 36 11 36c2.4 0 3.2-2 5-3.4 1.4-1 3-1.6 4.6-1.6h7c1.6 0 3.2.6 4.6 1.6 1.8 1.4 2.6 3.4 5 3.4 4 0 6.8-4 7.3-8S43 20 39 20z"/></svg>
             </figure>
+            <figure>
+              <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="17" y="12" width="14" height="18" rx="4"/><path d="M21 8h6M21 34h6M24 18v5h4"/></svg>
+            </figure>
+            <figure>
+              <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M20 8h8l6 18H14z"/><rect x="10" y="26" width="28" height="10" rx="3"/></svg>
+            </figure>
+            <figure>
+              <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="8" y="16" width="32" height="20" rx="3"/><circle cx="24" cy="26" r="6"/><path d="M16 16l2-5h12l2 5"/></svg>
+            </figure>
           </div>
         </div>
       </section>
@@ -63,21 +72,21 @@ ${css}
       <section class="ep-band ep-band--canvas">
         <div class="ep-wrap">
           <h2 class="ep-h2">The awkward truth</h2>
-          <p class="ep-copy">Most carts die because the money feels stuck in last year's phone. Trade-in as payment unlocks that liquidity at checkout, not after a separate sell-then-buy dance.</p>
+          <p class="ep-copy">Most carts die because the money is sitting in a cupboard. Last year's phone. The coffee machine. The watch they upgraded from. Trade-in as payment unlocks that liquidity at checkout, not after a sell-then-buy dance.</p>
         </div>
       </section>
       <section class="ep-section">
         <div class="ep-wrap">
           <div class="ep-section-head">
-            <h2 class="ep-h2">How it works from your side</h2>
-            <p class="ep-copy">Inventory liquidation at checkout. Not upgrade financing against a new phone.</p>
+            <h2 class="ep-h2">How the payment method works</h2>
+            <p class="ep-copy">They pay with stuff they already own. We liquidate it. You are not in the second-hand business.</p>
           </div>
           <div class="ep-steps">
             <article class="ep-card"><span class="ep-step-n">01</span><h3>They pick your product</h3><p>A couch, a fridge, a jacket. The thing they came to buy from you.</p></article>
-            <article class="ep-card"><span class="ep-step-n">02</span><h3>Instant trade-in quote</h3><p>Phones, MacBooks, Galaxy, consoles. Inside your flow, not a detour to another site.</p></article>
+            <article class="ep-card"><span class="ep-step-n">02</span><h3>Instant quote on their stuff</h3><p>Phones, MacBooks, consoles, GoPro, Dyson, GHD, coffee machines, luxury watches. Inside your flow, not a detour.</p></article>
             <article class="ep-card"><span class="ep-step-n">03</span><h3>Epic funds the cash base</h3><p>The Good buyback comes off our P&amp;L. You are not running a second-hand desk.</p></article>
             <article class="ep-card"><span class="ep-step-n">04</span><h3>You can top up</h3><p>Optional subsidy from your SKU margin. You set it. You can turn it off.</p></article>
-            <article class="ep-card"><span class="ep-step-n">05</span><h3>Device ships to Epic</h3><p>We take intake, fraud and liquidation. You keep the sale.</p></article>
+            <article class="ep-card"><span class="ep-step-n">05</span><h3>The kit ships to Epic</h3><p>We take intake, fraud and liquidation. You keep the sale.</p></article>
           </div>
         </div>
       </section>
@@ -88,7 +97,7 @@ ${css}
             <li>No grading lab.</li>
             <li>No buyback P&amp;L.</li>
             <li>No fraud desk.</li>
-            <li>No “what is this cracked iPhone worth” spreadsheet.</li>
+            <li>No “what is this cracked iPhone or half-dead Dyson worth” spreadsheet.</li>
           </ul>
         </div>
       </section>
@@ -96,7 +105,7 @@ ${css}
         <div class="ep-wrap">
           <div class="ep-section-head"><h2 class="ep-h2">Who this is for</h2></div>
           <div class="ep-split">
-            <article class="ep-card"><h3>Retail with a real ticket</h3><p>Furniture, appliances, fashion, specialty retail, e-comm with AOV high enough that a used phone or laptop meaningfully closes the gap.</p></article>
+            <article class="ep-card"><h3>Retail with a real ticket</h3><p>Furniture, appliances, fashion, specialty retail, e-comm. AOV high enough that a used phone, a laptop, or a Dyson meaningfully closes the gap.</p></article>
             <article class="ep-card ep-who--not"><h3>Not phone-upgrade financing</h3><p>That is a different game. We do not pretend to be Breezy, and we will not claim to beat them on new-phone trade-in credit.</p></article>
           </div>
         </div>
@@ -116,12 +125,12 @@ ${css}
         <div class="ep-wrap">
           <div class="ep-section-head">
             <h2 class="ep-h2">Your colours. Our engine.</h2>
-            <p class="ep-copy">The live calculator already embeds on partner-style pages. A partner key keeps the quote engine ours and the chrome yours.</p>
+            <p class="ep-copy">The live calculator already embeds on partner-style pages. A partner key keeps the quote engine ours and the chrome yours. Phones, yes. Also the cupboard.</p>
           </div>
           <div class="ep-embed" aria-hidden="true">
             <div class="ep-embed-bar"><i class="ep-embed-dot"></i><i class="ep-embed-dot"></i><i class="ep-embed-dot"></i> yourstore.co.za/checkout</div>
             <div class="ep-embed-body">
-              <div class="ep-chip-row"><span class="ep-chip">Phone</span><span class="ep-chip">MacBook</span><span class="ep-chip">Galaxy</span><span class="ep-chip">Console</span></div>
+              <div class="ep-chip-row"><span class="ep-chip">Phone</span><span class="ep-chip">MacBook</span><span class="ep-chip">Console</span><span class="ep-chip">GoPro</span><span class="ep-chip">Dyson</span><span class="ep-chip">GHD</span><span class="ep-chip">Watch</span><span class="ep-chip">Coffee</span></div>
               <div class="ep-embed-cta">Get an instant offer</div>
             </div>
           </div>
@@ -197,7 +206,7 @@ ${css}
       <div class="ep-wrap">
         <div class="ep-section-head"><h2 class="ep-h2">Questions partners actually ask</h2></div>
         <div class="ep-faq">
-          <details><summary>Is this the same as Apple or Breezy trade-in?</summary><p>No. Those subsidise new-phone upgrades. We liquidate the customer’s old tech so they can buy your product.</p></details>
+          <details><summary>Is this the same as Apple or Breezy trade-in?</summary><p>No. Those subsidise new-phone upgrades. We turn the stuff they already own into a payment toward your product. Phones, yes. Also GoPro, Dyson, GHD, coffee machines, watches, consoles.</p></details>
           <details><summary>Who holds the inventory risk?</summary><p>Epic, once the device passes intake.</p></details>
           <details><summary>Can we white-label the calculator?</summary><p>Yes. Embed with a partner key; your colours, our engine.</p></details>
           <details><summary>How fast to pilot?</summary><p>Weeks, not quarters. Manual first, then embed.</p></details>
