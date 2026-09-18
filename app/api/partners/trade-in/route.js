@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getClientIp } from "@/lib/clientIp";
 import { isRateLimited } from "@/lib/rateLimit";
 import { validatePartnerLead } from "@/lib/partnersTradeIn";
+import { sendPartnersPilotNotify } from "@/lib/email";
 
 export const dynamic = "force-dynamic";
 
@@ -64,6 +65,10 @@ export async function POST(request) {
 
   if (!isSpam) {
     await storeInAirtableIfConfigured(payload);
+    // Best-effort: notify failure must not fail the API response.
+    await sendPartnersPilotNotify(payload).catch((err) =>
+      console.error("[partners/trade-in] notify email failed", err)
+    );
   }
 
   return respond(request, { ok: true });
