@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<!--
+  Epic Partners trade-in lander for GenerateBlocks → Custom HTML.
+  No <script> tags on purpose: Cloudflare WAF on epicdeals.co.za rejects
+  inline JS in WP update payloads (see public/embed.js). JSON-LD belongs
+  in Yoast. Optional form UX: <script src="https://sym-calculator.vercel.app/partners/trade-in-form.js" defer></script>
+-->
+<style>
+/*
+ * Epic Partners lander. Galaxy-shaped, not calculator-shaped.
+ *
+ * The shared calculator reconstructs storefront tokens on <html data-site>.
+ * This page must not touch that contract. Tokens live on `.ep` so a dark OS,
+ * an epicdeals host accent of #1e73be, or a future data-site tweak cannot
+ * repaint the lander or the embed.
+ *
+ * Shape language is sellyourgalaxy's, not sellyourmac's:
+ *   warm ground #faf9f7 (not Apple cool #f5f5f7)
+ *   28px cards, 16px controls (rounded rectangles, not pills)
+ *   surfaces and one soft shadow, not hairline grids
+ *   --brand is a fill; --brand-ink is text; --brand-deep is the one inverted band
+ *
+ * #00a2ff as text on this ground is ~2.6:1. White on #00a2ff is ~2.8:1.
+ * Both fail AA. The primary button still uses the group fill because that is
+ * how the Galaxy system ships; every other brand-coloured word uses ink.
+ */
+
+.ep {
+  --bg: #faf9f7;
+  --canvas: #f1efec;
+  --card: #ffffff;
+  --fg: #14161a;
+  --muted: #626873;
+  --wash: #e8f4fd;
+  --brand: #00a2ff;
+  --brand-ink: #006bb8;
+  --brand-deep: #005c9e;
+  --radius-card: 28px;
+  --radius-control: 16px;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --shadow: 0 18px 40px -28px rgba(20, 22, 26, 0.45);
+  --max: 72rem;
+
+  min-height: 100dvh;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-satoshi), Satoshi, ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-feature-settings: "rlig" 1, "calt" 1;
+  line-height: 1.5;
+  text-rendering: optimizeLegibility;
+}
+
+.ep *,
+.ep *::before,
+.ep *::after {
+  box-sizing: border-box;
+}
+
+.ep h1,
+.ep h2,
+.ep h3,
+.ep p,
+.ep ul,
+.ep ol,
+.ep figure {
+  margin: 0;
+}
+
+.ep a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.ep button,
+.ep input,
+.ep select,
+.ep textarea {
+  font: inherit;
+  color: inherit;
+}
+
+.ep-skip {
+  position: absolute;
+  left: 1rem;
+  top: -4rem;
+  z-index: 20;
+  border-radius: var(--radius-control);
+  background: var(--brand-deep);
+  color: #fff;
+  padding: 0.7rem 1rem;
+}
+
+.ep-skip:focus {
+  top: 1rem;
+}
+
+.ep-wrap {
+  width: min(100% - 2rem, var(--max));
+  margin-inline: auto;
+}
+
+@media (min-width: 720px) {
+  .ep-wrap {
+    width: min(100% - 4rem, var(--max));
+  }
+}
+
+.ep-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.15rem 0 0;
+}
+
+.ep-mark {
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.ep-mark span {
+  color: var(--brand-ink);
+}
+
+.ep-top-link {
+  color: var(--muted);
+  font-size: 0.92rem;
+  font-weight: 500;
+}
+
+.ep-top-link:hover,
+.ep-top-link:focus-visible {
+  color: var(--brand-ink);
+}
+
+.ep-hero {
+  position: relative;
+  isolation: isolate;
+  padding: 2.4rem 0 2.75rem;
+  /* Soft brand bloom, one hue, no second accent. */
+  background:
+    radial-gradient(
+      ellipse 90% 55% at 88% -10%,
+      color-mix(in srgb, var(--brand) 18%, transparent),
+      transparent 62%
+    ),
+    var(--bg);
+}
+
+.ep-hero-grid {
+  display: grid;
+  gap: 2rem;
+}
+
+@media (min-width: 960px) {
+  .ep-hero-grid {
+    grid-template-columns: 1.3fr 0.7fr;
+    align-items: end;
+    gap: 3rem;
+    padding-bottom: 0.5rem;
+  }
+}
+
+.ep-h1 {
+  font-size: clamp(2.15rem, 8vw, 4rem);
+  font-weight: 700;
+  letter-spacing: -0.038em;
+  line-height: 1.08;
+  max-width: 13ch;
+}
+
+.ep-lede {
+  margin-top: 1.1rem;
+  max-width: 34em;
+  color: var(--muted);
+  font-size: 1.05rem;
+  line-height: 1.55;
+}
+
+.ep-proof {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 0.7rem;
+  margin-top: 1.35rem;
+  color: var(--muted);
+  font-size: 0.88rem;
+  font-weight: 500;
+}
+
+.ep-proof span:not(:last-child)::after {
+  content: "·";
+  margin-left: 0.7rem;
+  color: color-mix(in srgb, var(--muted) 55%, transparent);
+}
+
+.ep-preform {
+  display: flow-root;
+}
+
+.ep-hero-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.85rem;
+  margin-top: 1.7rem;
+}
+
+@media (max-width: 719px) {
+  .ep-hero-actions .ep-btn {
+    display: none;
+  }
+}
+
+@media (min-width: 560px) {
+  .ep-hero-actions {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+.ep-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0.85rem 1.3rem;
+  border: 0;
+  border-radius: var(--radius-control);
+  background: var(--brand);
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  transition: transform 0.2s var(--ease), filter 0.2s var(--ease);
+}
+
+.ep-btn:hover {
+  filter: brightness(0.96);
+}
+
+.ep-btn:active {
+  transform: translateY(1px);
+}
+
+.ep-btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.ep-btn:focus-visible,
+.ep-text-link:focus-visible,
+.ep-field input:focus-visible,
+.ep-field select:focus-visible,
+.ep-field textarea:focus-visible,
+.ep-check:focus-within,
+.ep-faq summary:focus-visible {
+  outline: 3px solid var(--brand-ink);
+  outline-offset: 3px;
+}
+
+.ep-text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 44px;
+  color: var(--brand-ink);
+  font-weight: 650;
+}
+
+.ep-text-link::after {
+  content: "→";
+  transition: transform 0.2s var(--ease);
+}
+
+.ep-text-link:hover::after {
+  transform: translateX(3px);
+}
+
+.ep-art {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
+.ep-art figure {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  border-radius: var(--radius-card);
+  background: var(--card);
+  box-shadow: var(--shadow);
+  color: color-mix(in srgb, var(--brand) 34%, var(--fg));
+}
+
+.ep-art svg {
+  width: 46%;
+  height: 46%;
+}
+
+.ep-band {
+  padding: 3.1rem 0;
+}
+
+.ep-band--canvas {
+  background: var(--canvas);
+}
+
+.ep-band--deep {
+  background: var(--brand-deep);
+  color: #fff;
+}
+
+.ep-h2 {
+  font-size: clamp(1.7rem, 4vw, 2.55rem);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 1.15;
+  max-width: 18ch;
+}
+
+.ep-copy {
+  margin-top: 0.9rem;
+  max-width: 38em;
+  color: var(--muted);
+  font-size: 1.02rem;
+}
+
+.ep-band--deep .ep-copy {
+  color: color-mix(in srgb, #fff 78%, var(--brand-deep));
+}
+
+.ep-section {
+  padding: 3.4rem 0;
+}
+
+.ep-section-head {
+  max-width: 38em;
+  margin-bottom: 1.7rem;
+}
+
+.ep-steps {
+  display: grid;
+  gap: 0.85rem;
+}
+
+@media (min-width: 720px) {
+  .ep-steps {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .ep-steps article:last-child {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (min-width: 1100px) {
+  .ep-steps {
+    grid-template-columns: repeat(5, 1fr);
+  }
+
+  .ep-steps article:last-child {
+    grid-column: auto;
+  }
+}
+
+.ep-card {
+  background: var(--card);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow);
+  padding: 1.25rem 1.3rem 1.35rem;
+}
+
+.ep-step-n {
+  display: block;
+  color: var(--brand-ink);
+  font-size: 0.82rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.06em;
+}
+
+.ep-card h3,
+.ep-who h3,
+.ep-econ h3 {
+  margin-top: 0.55rem;
+  font-size: 1.12rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+.ep-card p,
+.ep-who p,
+.ep-econ p {
+  margin-top: 0.45rem;
+  color: var(--muted);
+}
+
+.ep-never {
+  display: grid;
+  gap: 0.75rem;
+}
+
+@media (min-width: 720px) {
+  .ep-never {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.ep-never li {
+  list-style: none;
+  background: var(--card);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow);
+  padding: 1.2rem 1.3rem;
+  font-size: 1.08rem;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+
+.ep-split {
+  display: grid;
+  gap: 0.85rem;
+}
+
+@media (min-width: 800px) {
+  .ep-split {
+    grid-template-columns: 1.1fr 0.9fr;
+    align-items: stretch;
+  }
+}
+
+.ep-who--not {
+  background: var(--canvas);
+  box-shadow: none;
+}
+
+.ep-econ {
+  display: grid;
+  gap: 0.85rem;
+}
+
+@media (min-width: 800px) {
+  .ep-econ {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.ep-stats {
+  display: grid;
+  gap: 1.4rem;
+  margin-top: 1.6rem;
+}
+
+@media (min-width: 720px) {
+  .ep-stats {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.ep-stats strong {
+  display: block;
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.ep-stats span {
+  display: block;
+  margin-top: 0.45rem;
+  color: color-mix(in srgb, #fff 74%, var(--brand-deep));
+  font-size: 0.95rem;
+}
+
+.ep-embed {
+  margin-top: 1.5rem;
+  border-radius: var(--radius-card);
+  background: var(--card);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.ep-embed-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.75rem 1rem;
+  background: var(--canvas);
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.ep-embed-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 99px;
+  background: color-mix(in srgb, var(--muted) 35%, var(--canvas));
+}
+
+.ep-embed-body {
+  display: grid;
+  gap: 0.65rem;
+  padding: 1.1rem 1rem 1.2rem;
+}
+
+.ep-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.ep-chip {
+  border-radius: var(--radius-control);
+  background: var(--wash);
+  color: var(--brand-ink);
+  padding: 0.45rem 0.7rem;
+  font-size: 0.82rem;
+  font-weight: 650;
+}
+
+.ep-embed-cta {
+  border-radius: var(--radius-control);
+  background: var(--brand);
+  color: #fff;
+  padding: 0.85rem 1rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.ep-form {
+  display: grid;
+  gap: 0.95rem;
+  margin-top: 1.5rem;
+}
+
+.ep-fields {
+  display: grid;
+  gap: 0.85rem;
+}
+
+@media (min-width: 720px) {
+  .ep-fields--2 {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.ep-field {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.ep-field span,
+.ep-checks legend {
+  font-size: 0.9rem;
+  font-weight: 650;
+}
+
+.ep-field input,
+.ep-field select,
+.ep-field textarea {
+  width: 100%;
+  min-height: 48px;
+  border: 0;
+  border-radius: var(--radius-control);
+  background: var(--bg);
+  padding: 0.75rem 0.9rem;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--fg) 8%, transparent);
+}
+
+.ep-field textarea {
+  min-height: 8rem;
+  resize: vertical;
+}
+
+.ep-field input:hover,
+.ep-field select:hover,
+.ep-field textarea:hover {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--brand-ink) 35%, transparent);
+}
+
+.ep-hp {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.ep-checks {
+  border: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.ep-check-grid {
+  display: grid;
+  gap: 0.5rem;
+}
+
+@media (min-width: 560px) {
+  .ep-check-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.ep-check {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-height: 48px;
+  border-radius: var(--radius-control);
+  background: var(--bg);
+  padding: 0.55rem 0.85rem;
+  cursor: pointer;
+}
+
+.ep-check input {
+  width: 1.15rem;
+  height: 1.15rem;
+  accent-color: var(--brand);
+}
+
+.ep-error,
+.ep-form-error {
+  color: #9b1c1c;
+  font-size: 0.86rem;
+}
+
+.ep-success {
+  border-radius: var(--radius-card);
+  background: var(--wash);
+  padding: 1.4rem 1.3rem;
+}
+
+.ep-success h3 {
+  font-size: 1.4rem;
+  letter-spacing: -0.03em;
+}
+
+.ep-success p {
+  margin-top: 0.45rem;
+  color: var(--muted);
+}
+
+.ep-faq {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.ep-faq details {
+  border-radius: var(--radius-card);
+  background: var(--card);
+  box-shadow: var(--shadow);
+  padding: 0.35rem 0.2rem;
+}
+
+.ep-faq summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 0.95rem 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.ep-faq summary::-webkit-details-marker {
+  display: none;
+}
+
+.ep-faq details p {
+  padding: 0 1.15rem 1.1rem;
+  color: var(--muted);
+}
+
+.ep-foot {
+  padding: 2.4rem 0 7.5rem;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+@media (min-width: 720px) {
+  .ep-foot {
+    padding-bottom: 2.6rem;
+  }
+}
+
+.ep-foot a {
+  color: var(--brand-ink);
+  font-weight: 650;
+}
+
+.ep-foot-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 1rem;
+  margin-top: 0.55rem;
+}
+
+/* Sits at the top of the pre-form stack so `bottom: sticky` holds it in the
+   thumb zone while the argument scrolls, then releases as #apply arrives.
+   Hidden on desktop, where the hero already has a full primary. */
+.ep-sticky {
+  display: flex;
+  position: sticky;
+  bottom: 0.75rem;
+  z-index: 5;
+  margin: 0.4rem auto 0.9rem;
+  width: min(100% - 2rem, 28rem);
+  box-shadow: 0 16px 30px -12px rgba(0, 92, 158, 0.45);
+}
+
+@media (min-width: 720px) {
+  .ep-sticky {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ep-btn,
+  .ep-text-link::after {
+    transition: none;
+  }
+}
+
+.ep { font-family: Satoshi, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+</style>
+<div class="ep">
+  <a class="ep-skip" href="#apply">Skip to apply</a>
+  <header class="ep-wrap ep-top">
+    <p class="ep-mark">Epic <span>Deals</span></p>
+    <a class="ep-top-link" href="https://epicdeals.co.za/sell/">Sell your tech</a>
+  </header>
+  <main>
+    <div class="ep-preform">
+      <section class="ep-hero">
+        <div class="ep-wrap ep-hero-grid">
+          <div>
+            <h1 class="ep-h1">Let them pay with the tech they already own.</h1>
+            <p class="ep-lede">Your storefront. Our buyback engine. They sell a MacBook, you sell a couch, everybody moves.</p>
+            <p class="ep-proof">
+              <span>Trading since 2014</span>
+              <span>R90m+ paid to South Africans for old tech</span>
+              <span>2,500+ reviews</span>
+            </p>
+            <div class="ep-hero-actions">
+              <a class="ep-btn" href="#apply">Apply for a pilot partnership</a>
+              <a class="ep-text-link" href="#embed">See how the calculator embeds</a>
+            </div>
+          </div>
+          <div class="ep-art" aria-hidden="true">
+            <figure>
+              <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="16" y="6" width="16" height="36" rx="3.5"/><path d="M22 10h4M22 38h4"/></svg>
+            </figure>
+            <figure>
+              <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="8" y="10" width="32" height="20" rx="2"/><path d="M6 34h36l-2 4H8z"/></svg>
+            </figure>
+            <figure>
+              <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M10 18h8M14 14v8"/><circle cx="32" cy="18" r="1.4" fill="currentColor" stroke="none"/><circle cx="28" cy="22" r="1.4" fill="currentColor" stroke="none"/><path d="M9 20c-4 0-6 4-5.5 8S7 36 11 36c2.4 0 3.2-2 5-3.4 1.4-1 3-1.6 4.6-1.6h7c1.6 0 3.2.6 4.6 1.6 1.8 1.4 2.6 3.4 5 3.4 4 0 6.8-4 7.3-8S43 20 39 20z"/></svg>
+            </figure>
+          </div>
+        </div>
+      </section>
+      <a class="ep-btn ep-sticky" href="#apply">Apply for a pilot partnership</a>
+      <section class="ep-band ep-band--canvas">
+        <div class="ep-wrap">
+          <h2 class="ep-h2">The awkward truth</h2>
+          <p class="ep-copy">Most carts die because the money feels stuck in last year's phone. Trade-in as payment unlocks that liquidity at checkout, not after a separate sell-then-buy dance.</p>
+        </div>
+      </section>
+      <section class="ep-section">
+        <div class="ep-wrap">
+          <div class="ep-section-head">
+            <h2 class="ep-h2">How it works from your side</h2>
+            <p class="ep-copy">Inventory liquidation at checkout. Not upgrade financing against a new phone.</p>
+          </div>
+          <div class="ep-steps">
+            <article class="ep-card"><span class="ep-step-n">01</span><h3>They pick your product</h3><p>A couch, a fridge, a jacket. The thing they came to buy from you.</p></article>
+            <article class="ep-card"><span class="ep-step-n">02</span><h3>Instant trade-in quote</h3><p>Phones, MacBooks, Galaxy, consoles. Inside your flow, not a detour to another site.</p></article>
+            <article class="ep-card"><span class="ep-step-n">03</span><h3>Epic funds the cash base</h3><p>The Good buyback comes off our P&amp;L. You are not running a second-hand desk.</p></article>
+            <article class="ep-card"><span class="ep-step-n">04</span><h3>You can top up</h3><p>Optional subsidy from your SKU margin. You set it. You can turn it off.</p></article>
+            <article class="ep-card"><span class="ep-step-n">05</span><h3>Device ships to Epic</h3><p>We take intake, fraud and liquidation. You keep the sale.</p></article>
+          </div>
+        </div>
+      </section>
+      <section class="ep-section" style="padding-top:0">
+        <div class="ep-wrap">
+          <div class="ep-section-head"><h2 class="ep-h2">What you never have to become</h2></div>
+          <ul class="ep-never">
+            <li>No grading lab.</li>
+            <li>No buyback P&amp;L.</li>
+            <li>No fraud desk.</li>
+            <li>No “what is this cracked iPhone worth” spreadsheet.</li>
+          </ul>
+        </div>
+      </section>
+      <section class="ep-band ep-band--canvas">
+        <div class="ep-wrap">
+          <div class="ep-section-head"><h2 class="ep-h2">Who this is for</h2></div>
+          <div class="ep-split">
+            <article class="ep-card"><h3>Retail with a real ticket</h3><p>Furniture, appliances, fashion, specialty retail, e-comm with AOV high enough that a used phone or laptop meaningfully closes the gap.</p></article>
+            <article class="ep-card ep-who--not"><h3>Not phone-upgrade financing</h3><p>That is a different game. We do not pretend to be Breezy, and we will not claim to beat them on new-phone trade-in credit.</p></article>
+          </div>
+        </div>
+      </section>
+      <section class="ep-section">
+        <div class="ep-wrap">
+          <div class="ep-section-head"><h2 class="ep-h2">The economics, plain</h2></div>
+          <div class="ep-econ">
+            <article class="ep-card"><h3>Epic pays the Good cash base</h3><p>That is our buyback, from our book. Not a loan against a new phone.</p></article>
+            <article class="ep-card"><h3>You may add a top-up</h3><p>From your product margin, if you want the deal to close harder. Optional.</p></article>
+            <article class="ep-card"><h3>A clear fee to Epic</h3><p>We run intake and liquidate the device. You see the number before you pilot.</p></article>
+            <article class="ep-card"><h3>One line at checkout</h3><p>The customer sees a payment method, not a black box of trade-in maths.</p></article>
+          </div>
+        </div>
+      </section>
+      <section class="ep-section" id="embed" style="padding-top:0">
+        <div class="ep-wrap">
+          <div class="ep-section-head">
+            <h2 class="ep-h2">Your colours. Our engine.</h2>
+            <p class="ep-copy">The live calculator already embeds on partner-style pages. A partner key keeps the quote engine ours and the chrome yours.</p>
+          </div>
+          <div class="ep-embed" aria-hidden="true">
+            <div class="ep-embed-bar"><i class="ep-embed-dot"></i><i class="ep-embed-dot"></i><i class="ep-embed-dot"></i> yourstore.co.za/checkout</div>
+            <div class="ep-embed-body">
+              <div class="ep-chip-row"><span class="ep-chip">Phone</span><span class="ep-chip">MacBook</span><span class="ep-chip">Galaxy</span><span class="ep-chip">Console</span></div>
+              <div class="ep-embed-cta">Get an instant offer</div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+    <section class="ep-band ep-band--deep">
+      <div class="ep-wrap">
+        <h2 class="ep-h2">Trading since 2014</h2>
+        <p class="ep-copy">Sell Your niche network plus Epic Deals retail. R90m+ paid out. We do not promise the highest cash prices in SA. Honesty converts partners.</p>
+        <div class="ep-stats">
+          <p><strong>2014</strong><span>Trading since</span></p>
+          <p><strong>R90m+</strong><span>Paid to South Africans for old tech</span></p>
+          <p><strong>2,500+</strong><span>Reviews</span></p>
+        </div>
+      </div>
+    </section>
+    <section class="ep-section" id="apply">
+      <div class="ep-wrap" style="max-width:40rem">
+        <div class="ep-section-head">
+          <h2 class="ep-h2">Apply for a pilot</h2>
+          <p class="ep-copy">Looking for a handful of retailers. Manual first, then the embed. Or write <a href="mailto:sell@epicdeals.co.za">sell@epicdeals.co.za</a>.</p>
+        </div>
+        <div class="ep-card">
+          <form class="ep-form" id="ep-pilot-form" action="https://sym-calculator.vercel.app/api/partners/trade-in" method="post" accept-charset="UTF-8" aria-label="Pilot partnership application">
+            <div class="ep-hp" aria-hidden="true">
+              <label>Company fax <input type="text" name="honeypot" tabindex="-1" autocomplete="off"></label>
+            </div>
+            <div class="ep-fields ep-fields--2">
+              <label class="ep-field"><span>Name</span><input name="name" autocomplete="name" required></label>
+              <label class="ep-field"><span>Company</span><input name="company" autocomplete="organization" required></label>
+              <label class="ep-field"><span>Website</span><input name="website" inputmode="url" autocomplete="url" placeholder="https://" required></label>
+              <label class="ep-field"><span>Role</span>
+                <select name="role" autocomplete="organization-title" required>
+                  <option value="">Select</option>
+                  <option>Founder / owner</option>
+                  <option>Marketing</option>
+                  <option>E-commerce</option>
+                  <option>Operations</option>
+                  <option>Other</option>
+                </select>
+              </label>
+              <label class="ep-field"><span>Email</span><input name="email" type="email" inputmode="email" autocomplete="email" required></label>
+              <label class="ep-field"><span>Phone (SA)</span><input name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="082 123 4567" required></label>
+              <label class="ep-field"><span>Monthly orders (approx)</span>
+                <select name="monthlyOrders" required>
+                  <option value="">Select</option>
+                  <option>Under 50</option>
+                  <option>50-200</option>
+                  <option>200-1 000</option>
+                  <option>1 000+</option>
+                </select>
+              </label>
+            </div>
+            <fieldset class="ep-checks">
+              <legend>Categories you sell</legend>
+              <div class="ep-check-grid">
+                <label class="ep-check"><input type="checkbox" name="categories" value="Furniture"> Furniture</label>
+                <label class="ep-check"><input type="checkbox" name="categories" value="Appliances"> Appliances</label>
+                <label class="ep-check"><input type="checkbox" name="categories" value="Fashion"> Fashion</label>
+                <label class="ep-check"><input type="checkbox" name="categories" value="Specialty retail"> Specialty retail</label>
+                <label class="ep-check"><input type="checkbox" name="categories" value="E-commerce"> E-commerce</label>
+                <label class="ep-check"><input type="checkbox" name="categories" value="Other"> Other</label>
+              </div>
+            </fieldset>
+            <label class="ep-field"><span>Message (optional)</span><textarea name="message" rows="4"></textarea></label>
+            <button class="ep-btn" type="submit">Request pilot access</button>
+          </form>
+        </div>
+      </div>
+    </section>
+    <section class="ep-section" style="padding-top:0">
+      <div class="ep-wrap">
+        <div class="ep-section-head"><h2 class="ep-h2">Questions partners actually ask</h2></div>
+        <div class="ep-faq">
+          <details><summary>Is this the same as Apple or Breezy trade-in?</summary><p>No. Those subsidise new-phone upgrades. We liquidate the customer’s old tech so they can buy your product.</p></details>
+          <details><summary>Who holds the inventory risk?</summary><p>Epic, once the device passes intake.</p></details>
+          <details><summary>Can we white-label the calculator?</summary><p>Yes. Embed with a partner key; your colours, our engine.</p></details>
+          <details><summary>How fast to pilot?</summary><p>Weeks, not quarters. Manual first, then embed.</p></details>
+          <details><summary>South Africa only?</summary><p>Built for South Africa first: courier, banking, local categories.</p></details>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer class="ep-wrap ep-foot">
+    <p>Epic Deals</p>
+    <div class="ep-foot-row">
+      <a href="https://epicdeals.co.za/">epicdeals.co.za</a>
+      <a href="mailto:sell@epicdeals.co.za">sell@epicdeals.co.za</a>
+      <a href="tel:+27109001258">010 900 1258</a>
+      <a href="https://epicdeals.co.za/sell/">Consumer sell flow</a>
+    </div>
+  </footer>
+</div>
