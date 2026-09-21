@@ -8,6 +8,8 @@ import { getClientIp } from "@/lib/clientIp";
 import { readQuoteRef, newQuoteRef } from "@/lib/quoteRef";
 import { evaluateCoupon, claimCouponUse, releaseCouponUse, recordRedemption } from "@/lib/coupons";
 import { revalidateLeadPricing } from "@/lib/leadPricing";
+import { isCashPayoutPreference } from "@/lib/luxuryWatchPaymentGate";
+import { catalogLuxuryWatchCashPayoutBlocked } from "@/lib/luxuryWatchPaymentGate.server";
 
 export const dynamic = "force-dynamic";
 
@@ -88,6 +90,27 @@ export async function POST(request) {
   const ip = getClientIp(request);
   if (isRateLimited(`${site.key}:${ip}`)) {
     return NextResponse.json({ error: "Too many submissions, please try again later" }, { status: 429 });
+  }
+
+  // Luxury watches (Good cash buy ≥ R10k, excluding Apple/Samsung/Huawei)
+  // may only take consignment or voucher. Checked against the catalogue so
+  // a crafted payload cannot pick Direct EFT. Lookup failure is fail-open
+  // so a database hiccup does not block a real seller; the UI already hid
+  // EFT for the same rule.
+  let luxuryWatchCashBlocked = false;
+  try {
+    luxuryWatchCashBlocked = await catalogLuxuryWatchCashPayoutBlocked({ site, items });
+  } catch (err) {
+    console.error("luxury watch cash gate lookup failed", err);
+  }
+  if (luxuryWatchCashBlocked && isCashPayoutPreference(paymentPreference)) {
+    return NextResponse.json(
+      {
+        error:
+          "This watch does not qualify for instant EFT payout. Please choose Consignment or an Epic Deals voucher.",
+      },
+      { status: 400 }
+    );
   }
 
   // Recompute prices and fault deductions from the real database instead of
