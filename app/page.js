@@ -50,8 +50,6 @@
       <line x1="10" y1="17.5" x2="10" y2="22"/>
       <line x1="14" y1="17.5" x2="14" y2="22"/>
       <path d="M17.5 11.2h1.6v1.6h-1.6"/>
-      <line x1="12" y1="12" x2="12" y2="9.2"/>
-      <line x1="12" y1="12" x2="14.6" y2="13.2"/>
     </svg>},Q={Phone:{bg:"bg-brand/10",text:"text-brand"},Laptop:{bg:"bg-[#7c6ff0]/10",text:"text-[#7c6ff0]"},Desktop:{bg:"bg-[#14b8a6]/10",text:"text-[#14b8a6]"},Tablet:{bg:"bg-[#ec4899]/10",text:"text-[#ec4899]"},Watch:{bg:"bg-[#f59e0b]/10",text:"text-[#f59e0b]"},Earphone:{bg:"bg-[#22c55e]/10",text:"text-[#22c55e]"},Console:{bg:"bg-[#6366f1]/10",text:"text-[#6366f1]"},Vacuum:{bg:"bg-[#06b6d4]/10",text:"text-[#06b6d4]"},"Coffee Machine":{bg:"bg-[#d97706]/10",text:"text-[#d97706]"},"Hair Care":{bg:"bg-[#f43f5e]/10",text:"text-[#f43f5e]"},"Air Purifier":{bg:"bg-[#0ea5e9]/10",text:"text-[#0ea5e9]"},"Action Camera":{bg:"bg-[#ef4444]/10",text:"text-[#ef4444]"},Headphones:{bg:"bg-[#8b5cf6]/10",text:"text-[#8b5cf6]"},Speaker:{bg:"bg-[#f97316]/10",text:"text-[#f97316]"},"VR Headset":{bg:"bg-[#10b981]/10",text:"text-[#10b981]"},"Luxury Watch":{bg:"bg-[#c9a227]/10",text:"text-[#c9a227]"}},xt={Sealed:"var(--brand)",Mint:"#22c55e",Good:"#f59e0b",Poor:"#9ca3af"};/* Words that keep their capital in a sentence because they are names, not
    categories. Everything else in a label is title case only because it is a
    menu item, and reads wrong mid-sentence: "water damaged Coffee Machines".
