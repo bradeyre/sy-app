@@ -9,7 +9,7 @@ import { readQuoteRef, newQuoteRef } from "@/lib/quoteRef";
 import { evaluateCoupon, claimCouponUse, releaseCouponUse, recordRedemption } from "@/lib/coupons";
 import { revalidateLeadPricing } from "@/lib/leadPricing";
 import { isCashPayoutPreference } from "@/lib/luxuryWatchPaymentGate";
-import { catalogLuxuryWatchCashPayoutBlocked } from "@/lib/luxuryWatchPaymentGate.server";
+import { catalogCashPayoutBlocked } from "@/lib/luxuryWatchPaymentGate.server";
 
 export const dynamic = "force-dynamic";
 
@@ -93,21 +93,21 @@ export async function POST(request) {
   }
 
   // Luxury watches (Good cash buy ≥ R10k, excluding Apple/Samsung/Huawei)
-  // may only take consignment or voucher. Checked against the catalogue so
-  // a crafted payload cannot pick Direct EFT. Lookup failure is fail-open
-  // so a database hiccup does not block a real seller; the UI already hid
-  // EFT for the same rule.
-  let luxuryWatchCashBlocked = false;
+  // and every Luxury Handbag may only take consignment or voucher. Checked
+  // against the catalogue so a crafted payload cannot pick Direct EFT.
+  // Lookup failure is fail-open so a database hiccup does not block a real
+  // seller; the UI already hid EFT for the same rule.
+  let cashPayoutBlockedKind = null;
   try {
-    luxuryWatchCashBlocked = await catalogLuxuryWatchCashPayoutBlocked({ site, items });
+    cashPayoutBlockedKind = await catalogCashPayoutBlocked({ site, items });
   } catch (err) {
-    console.error("luxury watch cash gate lookup failed", err);
+    console.error("cash payout gate lookup failed", err);
   }
-  if (luxuryWatchCashBlocked && isCashPayoutPreference(paymentPreference)) {
+  if (cashPayoutBlockedKind && isCashPayoutPreference(paymentPreference)) {
+    const itemWord = cashPayoutBlockedKind === "handbag" ? "handbag" : "watch";
     return NextResponse.json(
       {
-        error:
-          "This watch does not qualify for instant EFT payout. Please choose Consignment or an Epic Deals voucher.",
+        error: `This ${itemWord} does not qualify for instant EFT payout. Please choose Consignment or an Epic Deals voucher.`,
       },
       { status: 400 }
     );
