@@ -20,6 +20,7 @@ import {
 } from "@/lib/luxuryHandbagMiss";
 import { sendHandbagMissCustomerEmail, sendHandbagMissOpsEmail } from "@/lib/email";
 import { createSignedReadUrl, downloadStoredObject } from "@/lib/storage";
+import { validateLeadIdentityAndBank } from "@/lib/leadValidation";
 
 export const dynamic = "force-dynamic";
 
@@ -76,23 +77,24 @@ export async function POST(request) {
   // copy of the ID document, and that the seller isn't a minor, captured per
   // transaction, plus a selfie, terms acceptance, and privacy acceptance
   // (matched live against epicdeals.co.za/trade-in).
-  if (!idNumber || !idDocumentPath || !selfiePath || !ageConfirmed || !termsAccepted || !privacyAccepted) {
-    return NextResponse.json(
-      {
-        error:
-          "ID number, a copy of your ID/passport, a selfie, and accepting the terms and privacy policy are all required to sell to us",
-      },
-      { status: 400 }
-    );
-  }
-
-  // Banking details are needed for EFT and consignment payouts.
-  const needsBankDetails = paymentPreference === "eft" || paymentPreference === "consignment";
-  if (needsBankDetails && (!bankName || !accountType || !branchCode || !accountNumber)) {
-    return NextResponse.json(
-      { error: "Bank name, account type, branch code, and account number are required for this payment option" },
-      { status: 400 }
-    );
+  // Banking is required for EFT/consignment except Luxury Handbag miss-flow
+  // (quote emailed; no EFT payout), where bank fields are optional.
+  const identityAndBank = validateLeadIdentityAndBank({
+    items,
+    paymentPreference,
+    idNumber,
+    idDocumentPath,
+    selfiePath,
+    ageConfirmed,
+    termsAccepted,
+    privacyAccepted,
+    bankName,
+    accountType,
+    branchCode,
+    accountNumber,
+  });
+  if (!identityAndBank.ok) {
+    return NextResponse.json({ error: identityAndBank.error }, { status: 400 });
   }
 
   // Rate limit FIRST. Revalidation runs several database queries per item, so
