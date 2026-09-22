@@ -420,6 +420,36 @@ the sequence feels alive rather than just text flicking. */
   animation: msg-in 0.3s ease-out both;
 }
 
+/* Luxury Handbag miss-path photo guide: mobile-first bottom sheet. */
+.photo-sheet-root {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: color-mix(in srgb, #0a1628 45%, transparent);
+}
+
+.photo-sheet-panel {
+  width: 100%;
+  max-width: 36rem;
+  border-radius: 1.25rem 1.25rem 0 0;
+  background: var(--card);
+  padding: 1rem 1.25rem 1.5rem;
+  box-shadow: 0 -8px 32px color-mix(in srgb, #0a1628 18%, transparent);
+}
+
+@media (min-width: 640px) {
+  .photo-sheet-root {
+    align-items: center;
+    padding: 1.5rem;
+  }
+  .photo-sheet-panel {
+    border-radius: 1.25rem;
+  }
+}
+
 /* Anyone who has asked for less motion gets the layout and the count-up's
    final value, without the movement. */
 @media (prefers-reduced-motion: reduce) {

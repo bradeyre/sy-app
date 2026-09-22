@@ -11,6 +11,15 @@ import { revalidateLeadPricing } from "@/lib/leadPricing";
 import { isCashPayoutPreference } from "@/lib/luxuryWatchPaymentGate";
 import { catalogLuxuryWatchCashPayoutBlocked } from "@/lib/luxuryWatchPaymentGate.server";
 import { catalogLuxuryHandbagCashPayoutBlocked } from "@/lib/luxuryHandbagPaymentGate.server";
+import {
+  appendHandbagMissNotes,
+  cartHasHandbagMiss,
+  payloadBlocksHandbagMissCashPayout,
+  sanitizeHandbagMissItems,
+  validateHandbagMissLead,
+} from "@/lib/luxuryHandbagMiss";
+import { sendHandbagMissCustomerEmail, sendHandbagMissOpsEmail } from "@/lib/email";
+import { createSignedReadUrl, downloadStoredObject } from "@/lib/storage";
 
 export const dynamic = "force-dynamic";
 
@@ -54,6 +63,7 @@ export async function POST(request) {
     branchCode,
     accountNumber,
     couponCode,
+    authenticityAccepted,
     website, // honeypot, real users never see or fill this field
     renderedAt, // client timestamp (ms) from when the form was shown
   } = body || {};
@@ -123,7 +133,8 @@ export async function POST(request) {
   } catch (err) {
     console.error("luxury handbag cash gate lookup failed", err);
   }
-  if (luxuryHandbagCashBlocked && isCashPayoutPreference(paymentPreference)) {
+  const missCashBlocked = payloadBlocksHandbagMissCashPayout(items, paymentPreference);
+  if ((luxuryHandbagCashBlocked || missCashBlocked) && isCashPayoutPreference(paymentPreference)) {
     return NextResponse.json(
       {
         error:
@@ -131,6 +142,21 @@ export async function POST(request) {
       },
       { status: 400 }
     );
+  }
+
+  if (cartHasHandbagMiss(items)) {
+    const missCheck = validateHandbagMissLead({
+      items,
+      paymentPreference,
+      authenticityAccepted,
+      email,
+    });
+    if (!missCheck.ok) {
+      return NextResponse.json(
+        { error: missCheck.errors[0] || "Handbag quote details are incomplete" },
+        { status: 400 }
+      );
+    }
   }
 
   // Recompute prices and fault deductions from the real database instead of
@@ -167,6 +193,19 @@ export async function POST(request) {
     flags = ["pricing_revalidation_failed"];
     needsReview = true;
   }
+
+  if (cartHasHandbagMiss(validatedItems) || cartHasHandbagMiss(items)) {
+    validatedItems = sanitizeHandbagMissItems(validatedItems);
+    flags = [...new Set([...flags, "handbag_miss_quote"])];
+    needsReview = true;
+    // Miss-flow never invents a cash estimate for the bag lines.
+    if (validatedItems.every((item) => item.missFlow || item.estimateUnavailable)) {
+      serverSubtotal = 0;
+      serverTotal = 0;
+    }
+  }
+
+  const notesWithMiss = appendHandbagMissNotes(notes, validatedItems);
 
   const honeypotTriggered = Boolean(website);
   const filledInMs = renderedAt ? Date.now() - Number(renderedAt) : null;
@@ -232,7 +271,7 @@ export async function POST(request) {
         postalCode || null,
         residentialAddress === false ? false : true,
         preferredCollectionDate || null,
-        notes || null,
+        notesWithMiss || null,
         ip !== "unknown" ? ip : null,
         request.headers.get("user-agent") || null,
         honeypotTriggered,
@@ -281,6 +320,28 @@ export async function POST(request) {
       );
     }
 
+    if (cartHasHandbagMiss(validatedItems)) {
+      after(() =>
+        notifyHandbagMiss({
+          leadId: rows[0].id,
+          reference,
+          lead: {
+            fullName,
+            phone,
+            email,
+            address,
+            suburb,
+            city,
+            province,
+            notes: notesWithMiss,
+            paymentPreference,
+            quoteRef: reference,
+          },
+          items: validatedItems,
+        }).catch((err) => console.error("handbag miss notify failed", err))
+      );
+    }
+
     after(() =>
       syncLeadToAirtable({
         leadId: rows[0].id,
@@ -294,7 +355,7 @@ export async function POST(request) {
           province,
           residentialAddress: residentialAddress !== false,
           preferredCollectionDate,
-          notes,
+          notes: notesWithMiss,
           quoteRef: reference,
           idNumber,
           idDocumentPath,
@@ -340,4 +401,42 @@ export async function POST(request) {
     }
     return NextResponse.json({ error: "Could not submit lead" }, { status: 500 });
   }
+}
+
+const PHOTO_LINK_TTL_SEC = 60 * 60 * 24 * 7;
+
+async function notifyHandbagMiss({ leadId, reference, lead, items }) {
+  const missItems = [];
+  const attachments = [];
+
+  for (const item of items || []) {
+    const photos = [];
+    for (const photo of item.handbagPhotos || []) {
+      if (!photo?.path) continue;
+      let url = null;
+      try {
+        url = await createSignedReadUrl(photo.path, PHOTO_LINK_TTL_SEC);
+      } catch (err) {
+        console.error("handbag miss signed url failed", photo.path, err);
+      }
+      photos.push({ ...photo, url });
+      try {
+        attachments.push(await downloadStoredObject(photo.path));
+      } catch (err) {
+        console.error("handbag miss attachment failed", photo.path, err);
+      }
+    }
+    missItems.push({ ...item, handbagPhotos: photos });
+  }
+
+  await sendHandbagMissOpsEmail({
+    lead: { ...lead, leadId, quoteRef: reference },
+    items: missItems,
+    attachments,
+  });
+  await sendHandbagMissCustomerEmail({
+    to: lead.email,
+    fullName: lead.fullName,
+    leadId: reference || leadId,
+  });
 }
