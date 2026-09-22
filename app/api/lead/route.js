@@ -10,6 +10,7 @@ import { evaluateCoupon, claimCouponUse, releaseCouponUse, recordRedemption } fr
 import { revalidateLeadPricing } from "@/lib/leadPricing";
 import { isCashPayoutPreference } from "@/lib/luxuryWatchPaymentGate";
 import { catalogLuxuryWatchCashPayoutBlocked } from "@/lib/luxuryWatchPaymentGate.server";
+import { catalogLuxuryHandbagCashPayoutBlocked } from "@/lib/luxuryHandbagPaymentGate.server";
 
 export const dynamic = "force-dynamic";
 
@@ -108,6 +109,25 @@ export async function POST(request) {
       {
         error:
           "This watch does not qualify for instant EFT payout. Please choose Consignment or an Epic Deals voucher.",
+      },
+      { status: 400 }
+    );
+  }
+
+  // Luxury handbags may only take consignment or voucher — no Direct EFT,
+  // regardless of Good cash buy. Catalogue type decides, not the payload.
+  // Lookup failure is fail-open; the UI already hid EFT for the same rule.
+  let luxuryHandbagCashBlocked = false;
+  try {
+    luxuryHandbagCashBlocked = await catalogLuxuryHandbagCashPayoutBlocked({ site, items });
+  } catch (err) {
+    console.error("luxury handbag cash gate lookup failed", err);
+  }
+  if (luxuryHandbagCashBlocked && isCashPayoutPreference(paymentPreference)) {
+    return NextResponse.json(
+      {
+        error:
+          "Luxury handbags do not qualify for instant EFT payout. Please choose Consignment or an Epic Deals voucher.",
       },
       { status: 400 }
     );
