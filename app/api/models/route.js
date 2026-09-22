@@ -4,6 +4,9 @@ import { getSiteConfig } from "@/lib/siteConfig";
 import { displayModel } from "@/lib/format";
 import { notBlockedSql } from "@/lib/catalogGate";
 import { loadConditionRules, excludedConditionsWith } from "@/lib/conditionRules";
+import { isLuxuryHandbagCategory } from "@/lib/luxuryHandbagPaymentGate";
+import { applyHandbagEstimateToModels } from "@/lib/luxuryHandbagEstimate";
+import { lookupHandbagLuxityMediansForModels } from "@/lib/luxuryHandbagEstimate.server";
 
 export const dynamic = "force-dynamic";
 
@@ -57,7 +60,7 @@ group by model, condition`,
       byModel.set(r.model, entry);
     }
 
-    const models = [...byModel.values()]
+    let models = [...byModel.values()]
       // A model with every condition excluded and no sealed stock has no
       // price at all, so it is dropped rather than shown as a dead end.
       .filter((m) => Number.isFinite(m.fromPrice))
@@ -69,6 +72,13 @@ group by model, condition`,
         fromPrice: m.fromPrice,
         toPrice: m.toPrice,
       }));
+
+    // Luxury Handbag: replace thin cash buy ranges with Luxity×0.9 estimate
+    // (or clear prices when no Luxity sample — never show fake firm cash).
+    if (isLuxuryHandbagCategory(type)) {
+      const samples = await lookupHandbagLuxityMediansForModels(models);
+      models = applyHandbagEstimateToModels(type, models, samples);
+    }
 
     return NextResponse.json({ models });
   } catch (err) {
