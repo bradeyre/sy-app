@@ -7,7 +7,7 @@
 "build": "next build",
 "start": "next start",
 "lint": "eslint",
-"test": "node --experimental-default-type=module --test lib/airtableLeadSync.test.js lib/partnersTradeIn.test.js lib/luxuryWatchPaymentGate.test.js lib/luxuryHandbagPaymentGate.test.js lib/categoryOrder.test.js"
+"test": "node --experimental-default-type=module --test lib/airtableLeadSync.test.js lib/partnersTradeIn.test.js lib/luxuryWatchPaymentGate.test.js lib/luxuryHandbagPaymentGate.test.js lib/categoryOrder.test.js lib/luxuryHandbagEstimate.test.js"
 },
 "dependencies": {
 "next": "16.3.0",
