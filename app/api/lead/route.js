@@ -14,6 +14,7 @@ import { catalogLuxuryHandbagCashPayoutBlocked } from "@/lib/luxuryHandbagPaymen
 import {
   appendHandbagMissNotes,
   cartHasHandbagMiss,
+  leadPostSubmitJobs,
   payloadBlocksHandbagMissCashPayout,
   sanitizeHandbagMissItems,
   validateHandbagMissLead,
@@ -305,11 +306,12 @@ export async function POST(request) {
       return NextResponse.json({ ok: true, id: rows[0].id, reference });
     }
 
-    // n8n owns the customer acknowledgment email; this app's job is just to
-    // make sure the Airtable record it writes has the fields that template
-    // needs. after() (backed by Vercel's waitUntil) keeps the customer's
-    // success screen fast while guaranteeing the sync actually runs to
-    // completion instead of racing the response.
+    // n8n owns the priced-lead acknowledgment (payday / courier / packing
+    // photos) and fires it from the Airtable create. Quote-pending miss
+    // carts already get the 48h Resend confirmation + Jarred ops email —
+    // do not write those to SHGA or n8n will also send the payday template
+    // against a R0 / Extra % quote. after() keeps the success screen fast.
+    const jobs = leadPostSubmitJobs(validatedItems);
     if (coupon) {
       after(() =>
         recordRedemption({
@@ -322,7 +324,7 @@ export async function POST(request) {
       );
     }
 
-    if (cartHasHandbagMiss(validatedItems)) {
+    if (jobs.notifyHandbagMiss) {
       after(() =>
         notifyHandbagMiss({
           leadId: rows[0].id,
@@ -344,54 +346,56 @@ export async function POST(request) {
       );
     }
 
-    after(() =>
-      syncLeadToAirtable({
-        leadId: rows[0].id,
-        lead: {
-          fullName,
-          phone,
-          email,
-          address,
-          suburb,
-          city,
-          province,
-          residentialAddress: residentialAddress !== false,
-          preferredCollectionDate,
-          notes: notesWithMiss,
-          quoteRef: reference,
-          idNumber,
-          idDocumentPath,
-          selfiePath,
-          ageConfirmed: Boolean(ageConfirmed),
-          termsAccepted: Boolean(termsAccepted),
-          privacyAccepted: Boolean(privacyAccepted),
-          bankName,
-          accountType,
-          branchCode,
-          accountNumber,
-          paymentPreference,
-          // Server-validated bonus (revalidateLeadPricing), never the raw
-          // client figure. This is what Quoted Value and Payment Preference
-          // mapping must use so ops sees the same money the customer saw.
-          paymentBonusPct: serverBonusPct,
-          siteDomain: site.domain,
-          airtableSource: site.airtableSource,
-          couponCode: coupon?.code ?? null,
-          couponBonus: coupon?.bonus ?? null,
-        },
-        items: validatedItems,
-        brand: site.where?.brand || "",
-      }).catch((err) =>
-        console.error(
-          JSON.stringify({
-            event: "airtable_sync_failed",
-            leadId: rows[0].id,
+    if (jobs.syncLeadToAirtable) {
+      after(() =>
+        syncLeadToAirtable({
+          leadId: rows[0].id,
+          lead: {
+            fullName,
+            phone,
+            email,
+            address,
+            suburb,
+            city,
+            province,
+            residentialAddress: residentialAddress !== false,
+            preferredCollectionDate,
+            notes: notesWithMiss,
             quoteRef: reference,
-            error: String(err?.message || err),
-          })
+            idNumber,
+            idDocumentPath,
+            selfiePath,
+            ageConfirmed: Boolean(ageConfirmed),
+            termsAccepted: Boolean(termsAccepted),
+            privacyAccepted: Boolean(privacyAccepted),
+            bankName,
+            accountType,
+            branchCode,
+            accountNumber,
+            paymentPreference,
+            // Server-validated bonus (revalidateLeadPricing), never the raw
+            // client figure. This is what Quoted Value and Payment Preference
+            // mapping must use so ops sees the same money the customer saw.
+            paymentBonusPct: serverBonusPct,
+            siteDomain: site.domain,
+            airtableSource: site.airtableSource,
+            couponCode: coupon?.code ?? null,
+            couponBonus: coupon?.bonus ?? null,
+          },
+          items: validatedItems,
+          brand: site.where?.brand || "",
+        }).catch((err) =>
+          console.error(
+            JSON.stringify({
+              event: "airtable_sync_failed",
+              leadId: rows[0].id,
+              quoteRef: reference,
+              error: String(err?.message || err),
+            })
+          )
         )
-      )
-    );
+      );
+    }
 
     return NextResponse.json({ ok: true, id: rows[0].id, reference });
   } catch (err) {
